@@ -7,24 +7,6 @@
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <context:property-placeholder location="classpath:musicPlayer.properties"/>
 
-    <bean id="rockMusic" class="ru.itis.kpfu.webapp.alishev.RockMusic"/>
-    <bean id="classicalMusic" class="ru.itis.kpfu.webapp.alishev.ClassicalMusic"/>
-    <bean id="popMusic" class="ru.itis.kpfu.webapp.alishev.PopMusic"/>
-
-    <bean id="musicPlayer"
-        class="ru.itis.kpfu.webapp.alishev.MusicPlayer">
-        <property name="musicList">
-            <list>
-                <ref bean="rockMusic"/>
-                <ref bean="classicalMusic"/>
-                <ref bean="popMusic"/>
-            </list>
-        </property>
-
-        <property name="name" value="${musicPlayer.name}"/>
-        <property name="volume" value="${musicPlayer.volume}"/>
-    </bean>
 
 </beans>
