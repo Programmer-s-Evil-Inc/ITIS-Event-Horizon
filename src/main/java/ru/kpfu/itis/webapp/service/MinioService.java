@@ -34,7 +34,7 @@ public class MinioService {
                 );
             }
         } catch (Exception e) {
-            log.error("Error initializing MinIO bucket", e);
+            log.error("Error initializing Minio bucket", e);
         }
     }
 
