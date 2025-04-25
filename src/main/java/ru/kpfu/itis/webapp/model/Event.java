@@ -9,12 +9,6 @@ import java.time.LocalDateTime;
 @Entity
 public class Event {
 
-    public enum Category {
-        SCIENCE,
-        SPORT,
-        CULTURE
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,4 +28,9 @@ public class Event {
     private Integer participantLimit;
 
     private Long organizerId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EventCategory category;
+
 }

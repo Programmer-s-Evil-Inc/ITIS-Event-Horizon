@@ -16,7 +16,7 @@ public class AuthController {
     private final List<Account> users = new ArrayList<>();
 
     @PostMapping("/register")
-    public ResponseEntity<Account> register(@ RequestBody Account user) {
+    public ResponseEntity<Account> register(@RequestBody Account user) {
         user.setId((long) (users.size() + 1));
         users.add(user);
         return ResponseEntity.ok(user);

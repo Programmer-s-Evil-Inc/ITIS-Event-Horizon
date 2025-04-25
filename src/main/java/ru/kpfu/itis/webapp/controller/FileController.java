@@ -6,14 +6,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.kpfu.itis.webapp.service.MinioService;
+import ru.kpfu.itis.webapp.service.impl.FileServiceMinioImpl;
 
 @RestController
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
 public class FileController {
 
-    private final MinioService minioService;
+    private final FileServiceMinioImpl minioService;
 
     @PostMapping("/upload")
     @PreAuthorize("hasRole('ORGANIZER')")

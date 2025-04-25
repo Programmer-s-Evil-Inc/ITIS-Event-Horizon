@@ -1,24 +1,26 @@
-package ru.kpfu.itis.webapp.service;
+package ru.kpfu.itis.webapp.service.impl;
 
 import io.minio.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import ru.kpfu.itis.webapp.service.FileService;
 
 import java.io.InputStream;
 
 @Service
 @Slf4j
-public class MinioService {
+public class FileServiceMinioImpl implements FileService {
 
     private final String minioEndpoint;
     private final MinioClient minioClient;
-    private final String bucketName = "event-horizon";
+    private final String bucketName;
 
-    public MinioService(@Value("${minio.endpoint}") String minioEndpoint, MinioClient minioClient) {
+    public FileServiceMinioImpl(@Value("${minio.bucket}") String bucketName, @Value("${minio.endpoint}") String minioEndpoint, MinioClient minioClient) {
         this.minioEndpoint = minioEndpoint;
         this.minioClient = minioClient;
+        this.bucketName = bucketName;
         initializeBucket();
     }
 

@@ -11,16 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Account {
 
-    public enum State {
-        CONFIRMED, NOT_CONFIRMED, DELETED, BANNED
-    }
-
-    public enum Role {
-        STUDENT,
-        ORGANIZER,
-        ADMIN
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,9 +22,11 @@ public class Account {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    private State state;
+    @Column(nullable = false)
+    private AccountState state;
 
     @Enumerated(EnumType.STRING)
-    private Role role;
+    @Column(nullable = false)
+    private AccountRole role;
 
 }
