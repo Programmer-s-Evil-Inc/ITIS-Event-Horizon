@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
-import ru.kpfu.itis.webapp.service.impl.FileServiceMinioImpl;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class MinioServiceTest {
 
     @Autowired
-    private FileServiceMinioImpl minioService;
+    private FileService minioService;
 
     @Autowired
     private MinioClient minioClient;

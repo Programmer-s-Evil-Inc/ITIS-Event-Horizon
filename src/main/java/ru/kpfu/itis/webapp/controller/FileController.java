@@ -6,14 +6,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.kpfu.itis.webapp.service.impl.FileServiceMinioImpl;
+import ru.kpfu.itis.webapp.service.FileService;
 
 @RestController
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
 public class FileController {
 
-    private final FileServiceMinioImpl minioService;
+    private final FileService fileService;
 
     @PostMapping("/upload")
     @PreAuthorize("hasRole('ORGANIZER')")
@@ -22,7 +22,7 @@ public class FileController {
             @RequestParam("eventId") String eventId) {
         try {
             String objectName = "events/" + eventId + "/" + file.getOriginalFilename();
-            String fileUrl = minioService.uploadFile(file, objectName);
+            String fileUrl = fileService.uploadFile(file, objectName);
             return ResponseEntity.ok(fileUrl);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
