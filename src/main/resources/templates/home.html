@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <title th:text="${title}"></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная страница</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f2f5;
+            font-family: Arial, sans-serif;
+        }
+
+        .welcome-text {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #1a1a1a;
+        }
+
+        .login-button {
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            background-color: #1a73e8;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .login-button:hover {
+            background-color: #1557b0;
+            transform: translateY(-2px);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+<div class="welcome-text">
+    <p th:text="'Привет, ' + ${title} + '!'"></p>
+    <p>Для продолжения работы войдите в систему</p>
+</div>
+
+<a href="sign-up" class="login-button">Перейти к входу</a>
+</body>
+</html>
