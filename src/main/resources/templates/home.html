@@ -1,58 +1,148 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <title th:text="${title}"></title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Главная страница</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Иконки Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* Дополнительные стили */
+        a {
+            text-decoration: none   ;
+        }
+        main {
+            margin: 0 auto;
+        }
         body {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background-color: #f0f2f5;
-            font-family: Arial, sans-serif;
+            background: #BADDFF;
         }
-
-        .welcome-text {
-            text-align: center;
-            margin-bottom: 2rem;
-            color: #1a1a1a;
-        }
-
-        .login-button {
-            padding: 1rem 2rem;
-            font-size: 1.2rem;
-            background-color: #1a73e8;
+        .hero-section {
+            background-size: cover;
+            background-position: center;
             color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s, transform 0.2s;
-            border: none;
-            cursor: pointer;
+            padding: 100px 0;
         }
-
-        .login-button:hover {
-            background-color: #1557b0;
-            transform: translateY(-2px);
+        .card-body {
+            background-size: cover; /* или contain */
+            background-position: center;
+            color: #f0f2f5;
         }
-
-        .login-button:active {
-            transform: translateY(0);
+        
+        footer {
+            padding: 30px 0;
         }
+        .search-string {
+            margin: 0 auto;
+        }
+        
     </style>
 </head>
-<body>
-<div class="welcome-text">
-    <p th:text="'Привет, ' + ${title} + '!'"></p>
-    <p>Для продолжения работы войдите в систему</p>
+<body class="text-dark">
+<!-- Навигационное меню -->
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            <img src="https://kpfu.ru/docs/F81942084654/img656916153.jpg" class="d-inline-block align-top rounded-2" alt="Лого" height="45">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link fw-bold" href="#">Главная</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold" href="#footer">О нас</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a href="#" class="nav-link fw-bold"><i class="fas fa-user-circle fa-lg" id="profile"></i> Личный кабинет</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Герой-секция -->
+<section class="hero-section text-center">
+    <div class="container">
+        
+        <h1 class="display-4 fw-bold mb-4 text-dark">Добро пожаловать на наш информационный сайт!</h1>
+        <p class="lead mb-4 text-dark">ИТИС КФУ приветствует вас! Как мы можем вам помочь?</p>
+        <div class="row">
+        <form class="d-flex col-12 col-sm-10 search-string">
+            <input class="form-control me-2 rounded-3" type="search" placeholder="Поиск...">
+            <button class="btn btn-outline-light" type="submit">Найти</button>
+        </form>
+        </div>    
+    </div>
+</section>
+
+<!-- Основной контент -->
+<div class="container-fluid">
+    <div class="row">
+        <!-- Основная колонка -->
+        <main class="col-lg-8">
+            <h2 class="mb-4" style="text-align:center">Последние публикации</h2>
+
+            <!-- Карточка статьи -->
+            <div class="card mb-auto rounded-5 mt-3">
+                <div class="card-body rounded-5" style="background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('https://static-cse.canva.com/blob/847132/paulskorupskas7KLaxLbSXAunsplash2.jpg') no-repeat center center / cover; height: 50vh;">
+                    <h3 class="card-title">Название мероприятия</h3>
+                    <p class=""><i class="far fa-calendar-alt me-2"></i>12 мая 2025</p>
+                    <p class="card-text">Описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание </p>
+                    <a href="#" class="btn btn-primary">Подробнее</a>
+                </div>
+            </div>
+            <div class="card mb-auto rounded-5 mt-3">
+                <div class="card-body rounded-5" style="background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJGRPzn7p0iresNG3SRxzEciTvOxDJeZT2EQ&s') no-repeat center center / cover; height: 50vh;">
+                    <h3 class="card-title">Название мероприятия</h3>
+                    <p class=""><i class="far fa-calendar-alt me-2"></i>12 мая 2025</p>
+                    <p class="card-text">Описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание </p>
+                    <a href="#" class="btn btn-primary">Подробнее</a>
+                </div>
+            </div>
+        </main>
+    </div>
 </div>
 
-<a href="sign-up" class="login-button">Перейти к входу</a>
+<!-- Футер -->
+<footer class="mt-5 bg-dark text-secondary" id="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <h5 class="text-light">О нас</h5>
+                <p>Краткое описание вашего информационного сайта и его миссии.</p>
+            </div>
+            <div class="col-md-4 mb-4">
+                <h5 class="text-light">Быстрые ссылки</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-secondary">Главная</a></li>
+                    <li><a href="#" class="text-secondary">Статьи</a></li>
+                    <li><a href="#" class="text-secondary">Категории</a></li>
+                    <li><a href="#" class="text-secondary">Контакты</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4 mb-4">
+                <h5 class="text-light">Контакты</h5>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-envelope me-2"></i> itis@kpfu.ru</li>
+                    <li><i class="fas fa-map-marker-alt me-2"></i> г. Казань, ул. Кремлевская, 35</li>
+                </ul>
+            </div>
+        </div>
+        <hr class="bg-light">
+        <div class="text-center">
+            <p class="mb-0">© 2025 КФУ ИТИС. Все права защищены</p>
+        </div>
+    </div>
+</footer>
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
