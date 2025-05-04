@@ -1,4 +1,4 @@
-package ru.kpfu.itis.webapp.model;
+package ru.kpfu.itis.webapp.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

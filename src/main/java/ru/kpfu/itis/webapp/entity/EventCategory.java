@@ -1,4 +1,4 @@
-package ru.kpfu.itis.webapp.model;
+package ru.kpfu.itis.webapp.entity;
 
 public enum EventCategory {
 
