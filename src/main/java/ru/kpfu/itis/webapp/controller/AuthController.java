@@ -10,6 +10,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
     private final List<Account> users = new ArrayList<>();
 
     @PostMapping("/register")
