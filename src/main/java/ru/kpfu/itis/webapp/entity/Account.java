@@ -1,21 +1,20 @@
 package ru.kpfu.itis.webapp.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
-@Entity
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "account")
 public class Account {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
@@ -23,10 +22,9 @@ public class Account {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AccountState state;
+    private AccountRole role;  // STUDENT, ORGANIZER или GUEST
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AccountRole role;
-
+    private AccountState state;  // CONFIRMED, NOT_CONFIRMED и т.д.
 }

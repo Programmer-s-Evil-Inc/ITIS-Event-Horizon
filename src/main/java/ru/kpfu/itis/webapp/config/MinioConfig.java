@@ -12,7 +12,7 @@ public class MinioConfig {
     private String endpoint;
 
     @Value("${minio.accessKey}")
-    private String accessKey;
+    private String accessKey; 
 
     @Value("${minio.secretKey}")
     private String secretKey;

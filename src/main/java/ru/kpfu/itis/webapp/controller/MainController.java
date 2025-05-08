@@ -13,9 +13,9 @@ public class MainController {
         return "home";
     }
 
-    @GetMapping("/login")
-    public String login() {
-        return "sign-in";
-    }
+//    @GetMapping("/auth/login")
+//    public String login() {
+//        return "sign-in";
+//    }
 
 }
