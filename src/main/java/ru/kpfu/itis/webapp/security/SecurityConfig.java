@@ -29,7 +29,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/organizer/**").hasRole("ORGANIZER")
                         .requestMatchers("/student/**").hasRole("STUDENT")
-                        .requestMatchers("/profile/**").authenticated()
+                        .requestMatchers("/profile/**", "/my-events", "/organizer/events").authenticated()
                         .anyRequest().permitAll()
                 )
                 .formLogin(form -> form

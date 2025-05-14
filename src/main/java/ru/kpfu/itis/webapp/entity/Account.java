@@ -22,9 +22,13 @@ public class Account {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AccountRole role;  // STUDENT, ORGANIZER или GUEST
+    private AccountRole role;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AccountState state;  // CONFIRMED, NOT_CONFIRMED и т.д.
+    private AccountState state;
+
+    @Column
+    private String photoUrl;
+
 }
