@@ -53,19 +53,37 @@ SELECT 'Фестиваль уличного искусства', 'Граффит
     WHERE NOT EXISTS (SELECT 1 FROM event WHERE title = 'Фестиваль уличного искусства');
 
 
-INSERT INTO account (email, password, role, state)
-SELECT 'student@example.com', '$2a$10$Jmzm0cm58VLm0yo/dYdcKu6Gqm6UJzZqeBieIH/DkGgZ3jcAQHw6a', 'STUDENT', 'CONFIRMED'
+INSERT INTO account (email, password, role, state, photo_url)
+SELECT 'student@example.com', '$2a$10$Jmzm0cm58VLm0yo/dYdcKu6Gqm6UJzZqeBieIH/DkGgZ3jcAQHw6a', 'STUDENT', 'CONFIRMED', 'http://localhost:9001/browser/event-horizon/ProfilePhoto%2Favatar1.png'
     WHERE NOT EXISTS (SELECT 1 FROM account WHERE email = 'student@example.com');
 
-INSERT INTO account (email, password, role, state)
-SELECT 'student1@example.com', '$2a$10$Jmzm0cm58VLm0yo/dYdcKu6Gqm6UJzZqeBieIH/DkGgZ3jcAQHw6a', 'STUDENT', 'CONFIRMED'
-    WHERE NOT EXISTS (SELECT 1 FROM account WHERE email = 'student1@example.com');
+INSERT INTO account (email, password, role, state, photo_url)
+SELECT 'not_confirmed@example.com', '$2a$10$Jmzm0cm58VLm0yo/dYdcKu6Gqm6UJzZqeBieIH/DkGgZ3jcAQHw6a', 'STUDENT', 'NOT_CONFIRMED', 'http://localhost:9001/browser/event-horizon/ProfilePhoto%2Favatar2.png'
+    WHERE NOT EXISTS (SELECT 1 FROM account WHERE email = 'not_confirmed@example.com');
 
 
-INSERT INTO account (email, password, role, state)
-SELECT 'organizer@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMy.MH/qj6W1mA6bYSUBBtFQ7Ug2QbSbaRe', 'ORGANIZER', 'CONFIRMED'
+INSERT INTO account (email, password, role, state, photo_url)
+SELECT 'organizer@example.com', '$2a$10$Jmzm0cm58VLm0yo/dYdcKu6Gqm6UJzZqeBieIH/DkGgZ3jcAQHw6a', 'ORGANIZER', 'CONFIRMED', 'http://localhost:9001/browser/event-horizon/ProfilePhoto%2Favatar3.png'
     WHERE NOT EXISTS (SELECT 1 FROM account WHERE email = 'organizer@example.com');
 
-INSERT INTO account (email, password, role, state)
-SELECT 'banned@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMy.MH/qj6W1mA6bYSUBBtFQ7Ug2QbSbaRe', 'GUEST', 'BANNED'
+INSERT INTO account (email, password, role, state, photo_url)
+SELECT 'banned@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMy.MH/qj6W1mA6bYSUBBtFQ7Ug2QbSbaRe', 'GUEST', 'BANNED', 'http://localhost:9001/browser/event-horizon/ProfilePhoto%2Favatar1.png'
     WHERE NOT EXISTS (SELECT 1 FROM account WHERE email = 'banned@example.com');
+
+INSERT INTO participation (event_id, user_id)
+SELECT e.id, a.id
+FROM event e, account a
+WHERE e.title = 'Научная конференция' AND a.email = 'student@example.com'
+  AND NOT EXISTS (SELECT 1 FROM participation WHERE event_id = e.id AND user_id = a.id);
+
+INSERT INTO participation (event_id, user_id)
+SELECT e.id, a.id
+FROM event e, account a
+WHERE e.title = 'Футбольный матч' AND a.email = 'student@example.com'
+  AND NOT EXISTS (SELECT 1 FROM participation WHERE event_id = e.id AND user_id = a.id);
+
+INSERT INTO participation (event_id, user_id)
+SELECT e.id, a.id
+FROM event e, account a
+WHERE e.title = 'Выставка современного искусства' AND a.email = 'organizer@example.com'
+  AND NOT EXISTS (SELECT 1 FROM participation WHERE event_id = e.id AND user_id = a.id);

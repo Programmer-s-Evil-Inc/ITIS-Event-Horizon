@@ -1,5 +1,6 @@
 package ru.kpfu.itis.webapp.security.details;
 
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,6 +9,7 @@ import ru.kpfu.itis.webapp.entity.AccountState;
 import java.util.Collection;
 import java.util.Collections;
 
+@Getter
 public class AccountUserDetails implements UserDetails {
     private final Account account;
 
@@ -49,4 +51,5 @@ public class AccountUserDetails implements UserDetails {
     public boolean isEnabled() {
         return account.getState() == AccountState.CONFIRMED;
     }
+
 }
