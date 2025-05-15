@@ -1,13 +1,171 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ru">
 <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Профиль</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-    <h1>Временная страница профиля</h1>
-    <p>Добро пожаловать! Фронтенд еще в разработке.</p>
-    <form th:action="@{/logout}" method="post">
-        <button type="submit">Выйти</button>
-    </form>
+    <style>
+        .profile-container {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+        .avatar-container {
+            width: 200px;
+            height: 200px;
+            flex-shrink: 0;
+        }
+        @media (max-width: 768px) {
+            .profile-container {
+                grid-template-columns: 1fr;
+            }
+            .avatar-container {
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body style="background-color: #BADDFF;">
+
+<!-- Навигационная панель -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            <img src="https://kpfu.ru/docs/F81942084654/img656916153.jpg" class="rounded-2" alt="Лого" height="45">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link fw-bold" href="#">Главная</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold" href="#footer">О нас</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a href="#" class="nav-link fw-bold"><i class="fas fa-user-circle fa-lg"></i> Личный кабинет</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Профиль -->
+<div class="container py-5">
+    <div class="bg-light rounded-3 p-4 profile-container">
+        <div class="avatar-container">
+            <div class="rounded-circle bg-secondary w-100 h-100" style="background-image: url('https://s0.rbk.ru/v6_top_pics/media/img/2/62/346977209827622.jpeg'); background-size: cover; background-position: center;"></div>
+        </div>
+        <div>
+            <h1 class="fw-bold mb-3">Павел Дуров</h1>
+            <p class="mb-0">С самого детства Павел понимал: зачем нужна одежда, если есть биткоины и уверенность в себе? Говорят, его первым словом было не "мама", а "контрастный душ". Он вырос, создал "ВКонтакте", но потом ушёл, потому что соцсеть требовала слишком много одежды — а он предпочитает digital-натурализм.  Когда обычные люди утром пьют кофе, Павел выливает на себя ведро ледяной воды, делает селфи и пишет пост про "осознанность". Он не носит майки не потому, что их нет в его гардеробе, а потому, что его гардероб — это метафора. "Зачем прикрывать то, что и так кристально чисто?" — спрашивает он, поправляя воображаемый галстук на голом торсе. Его любимый способ общения — не голосовые сообщения, а фотографии с видом на заснеженные горы, где он медитирует в сугробе. "Холод — это новый digital", — говорит он, пока обычные смертные дрожат в свитерах. Его жизненное кредо: "Блокчейн, безусловная любовь и никаких футболок". В мире, где все носят маски, он остаётся верен себе — максимально раздетым и максимально свободным. И если однажды Telegram забанит все фото без майки — он просто создаст новый мессенджер - ToplessGram.</p>
+        </div>
+    </div>
+
+    <h3 class="text-center fw-bold my-5">Твои мероприятия:</h3>
+
+    <div class="border border-2 border-dashed border-secondary rounded-3 p-4">
+        <!-- Событие 1 -->
+        <div class="row mb-4">
+            <div class="col-md-7">
+                <div class="w-100 rounded-4 ratio ratio-16x9" style="height: 350px; background-image: url('https://avatars.mds.yandex.net/i?id=a78c1c2941ae6be7c33a823d5556a2ea_l-8232745-images-thumbs&n=13'); background-size: cover; background-position: center;">
+                    <div class="p-3 text-white fw-bold fs-3">Холодные ванны со льдом</div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="bg-light rounded-4 w-100 h-100 p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="rounded-circle bg-secondary me-2" style="width: 40px; height: 40px;"></div>
+                            <div><strong>Организатор Организаторов</strong></div>
+                        </div>
+                        <p>описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание</p>
+                    </div>
+                    <small><i class="far fa-calendar-alt me-2"></i>Дата: 1 сентября 2025</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Событие 2 -->
+        <div class="row mb-4">
+            <div class="col-md-7">
+                <div class="w-100 rounded-4 ratio ratio-16x9" style="height: 350px; background-image: url('https://avatars.dzeninfra.ru/get-zen_doc/271828/pub_66201f041076992782f19df8_6620238f9041025448f565ab/scale_1200'); background-size: cover; background-position: top;">
+                    <div class="p-3 text-white fw-bold fs-3">Принятие правильных решений</div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="bg-light rounded-4 w-100 h-100 p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="rounded-circle bg-secondary me-2" style="width: 40px; height: 40px;"></div>
+                            <div><strong>Организатор Организаторов</strong></div>
+                        </div>
+                        <p>описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание</p>
+                    </div>
+                    <small><i class="far fa-calendar-alt me-2"></i>Дата: 1 сентября 2025</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Добавить мероприятие -->
+        <div class="row">
+            <div class="col-md-7">
+                <div class="w-100 rounded-4 ratio ratio-16x9 opacity-75" style="height: 350px; background-image: url('https://uznayvse.ru/images/content/2024/12/24/meme-with-pavel-durov_38.jpg'); background-size: cover; background-position: center;"></div>
+            </div>
+            <div class="col-md-5 d-flex justify-content-center align-items-center">
+                <div class="bg-light rounded-4 w-100 h-100 p-4 text-center text-muted opacity-75 d-flex flex-column justify-content-center" style="max-width: 525px;">
+                    <i class="fas fa-plus-circle fa-4x"></i>
+                    <h4 class="mt-3">Добавить мероприятие</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Футер -->
+<footer class="pt-5 pb-3 mt-5 bg-dark text-secondary" id="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <h5 class="text-light">О нас</h5>
+                <p>Краткое описание...</p>
+            </div>
+            <div class="col-md-4 mb-4">
+                <h5 class="text-light">Быстрые ссылки</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-secondary">Главная</a></li>
+                    <li><a href="#" class="text-secondary">Статьи</a></li>
+                    <li><a href="#" class="text-secondary">Категории</a></li>
+                    <li><a href="#" class="text-secondary">Контакты</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4 mb-4">
+                <h5 class="text-light">Контакты</h5>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-envelope me-2"></i> itis@kpfu.ru</li>
+                    <li><i class="fas fa-map-marker-alt me-2"></i> г. Казань, ул. Кремлевская, 35</li>
+                </ul>
+            </div>
+        </div>
+        <hr class="bg-light">
+        <div class="text-center">
+            <p class="mb-0">© 2025 КФУ ИТИС. Все права защищены</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
