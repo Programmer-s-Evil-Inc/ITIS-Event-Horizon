@@ -2,6 +2,7 @@ package ru.kpfu.itis.webapp.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,6 +31,8 @@ public class SecurityConfig {
                         .requestMatchers("/organizer/**").hasRole("ORGANIZER")
                         .requestMatchers("/student/**").hasRole("STUDENT")
                         .requestMatchers("/profile/**", "/my-events", "/organizer/events").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/upload/event").hasRole("ORGANIZER")
+                        .requestMatchers(HttpMethod.POST, "/event").hasRole("ORGANIZER")
                         .anyRequest().permitAll()
                 )
                 .formLogin(form -> form

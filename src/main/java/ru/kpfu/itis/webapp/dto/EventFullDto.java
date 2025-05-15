@@ -11,5 +11,6 @@ public record EventFullDto(
         String location,
         Integer participantLimit,
         Long organizerId,
-        EventCategory category
+        EventCategory category,
+        String image_url
 ) {}

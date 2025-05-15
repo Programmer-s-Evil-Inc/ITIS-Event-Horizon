@@ -1,12 +1,13 @@
 package ru.kpfu.itis.webapp.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import ru.kpfu.itis.webapp.dto.EventCreationRequest;
 import ru.kpfu.itis.webapp.dto.EventFullDto;
 import ru.kpfu.itis.webapp.dto.EventShortDto;
 import ru.kpfu.itis.webapp.security.details.AccountUserDetails;
@@ -22,6 +23,17 @@ public class EventController {
     @GetMapping("/event")
     public ResponseEntity<List<EventShortDto>> getAllEvents() {
         return ResponseEntity.ok(eventService.getAllShortEvents());
+    }
+
+    @PostMapping("/event")
+    @PreAuthorize("hasRole('ORGANIZER')")
+    public ResponseEntity<Void> createEvent(
+            @RequestBody @Valid EventCreationRequest request,
+            @AuthenticationPrincipal AccountUserDetails userDetails
+    ) {
+        Long organizerId = userDetails.getAccount().getId();
+        eventService.createEvent(request, organizerId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("/event/{eventId}")
@@ -48,5 +60,4 @@ public class EventController {
         Long organizerId = userDetails.getAccount().getId();
         return ResponseEntity.ok(eventService.getEventsByOrganizer(organizerId));
     }
-
 }

@@ -14,15 +14,16 @@ CREATE TABLE IF NOT EXISTS event (
     date TIMESTAMP NOT NULL,
     location VARCHAR(255) NOT NULL,
     participant_limit INTEGER,
-    organizer_id BIGINT,
-    category VARCHAR(50)
+    organizer_id BIGINT REFERENCES account(id),
+    category VARCHAR(50) NOT NULL,
+    image_url VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS participation
 (
     id BIGSERIAL PRIMARY KEY,
-    event_id INTEGER REFERENCES event(id) NOT NULL,
-    user_id INTEGER REFERENCES account(id) NOT NULL
+    event_id BIGINT REFERENCES event(id) NOT NULL,
+    user_id BIGINT REFERENCES account(id) NOT NULL
 );
 
 create table if not exists persistent_logins

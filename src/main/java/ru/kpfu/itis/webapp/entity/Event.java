@@ -7,6 +7,10 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "event")
 public class Event {
 
     @Id
@@ -32,5 +36,8 @@ public class Event {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EventCategory category;
+
+    @Column
+    private String imageUrl;
 
 }
