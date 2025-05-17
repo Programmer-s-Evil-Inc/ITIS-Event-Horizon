@@ -16,8 +16,8 @@ public class ExceptionHandlerController {
     }
 
     @ExceptionHandler({ServiceException.class})
-    public ResponseEntity<String> handleConflict(Exception ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    public ResponseEntity<String> handleBadRequest(Exception ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
 }
