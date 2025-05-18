@@ -33,6 +33,7 @@ public class SecurityConfig {
                         .requestMatchers("/profile/**", "/my-events", "/organizer/events").authenticated()
                         .requestMatchers(HttpMethod.POST, "/upload/event").hasRole("ORGANIZER")
                         .requestMatchers(HttpMethod.POST, "/event").hasRole("ORGANIZER")
+                        .requestMatchers(HttpMethod.POST, "/event/*/subscribe").hasAnyRole("STUDENT", "ORGANIZER")
                         .anyRequest().permitAll()
                 )
                 .formLogin(form -> form

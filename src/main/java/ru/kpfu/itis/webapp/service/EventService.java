@@ -2,13 +2,18 @@ package ru.kpfu.itis.webapp.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.kpfu.itis.webapp.dto.EventCreationRequest;
 import ru.kpfu.itis.webapp.dto.EventFullDto;
 import ru.kpfu.itis.webapp.dto.EventShortDto;
+import ru.kpfu.itis.webapp.entity.Account;
 import ru.kpfu.itis.webapp.entity.Event;
 import ru.kpfu.itis.webapp.entity.Participation;
+import ru.kpfu.itis.webapp.exceptions.DataNotFoundException;
+import ru.kpfu.itis.webapp.exceptions.ServiceException;
+import ru.kpfu.itis.webapp.repository.AccountRepository;
 import ru.kpfu.itis.webapp.repository.EventRepository;
 import ru.kpfu.itis.webapp.repository.ParticipationRepository;
 
@@ -17,10 +22,12 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EventService {
 
     private final EventRepository eventRepository;
     private final ParticipationRepository participationRepository;
+    private final AccountRepository accountRepository;
 
     @Value("${minio.endpoint}")
     private String minioEndpoint;
@@ -100,6 +107,31 @@ public class EventService {
                 minioEndpoint,
                 bucketName,
                 imageUuid);
+    }
+
+    @Transactional
+    public void subscribeToEvent(Long userId, Long eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new DataNotFoundException("Event not found"));
+
+        Account user = accountRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+        if (participationRepository.existsByUserIdAndEventId(userId, eventId)) {
+            log.warn("User {} already subscribed to event {}", userId, eventId);
+            throw new ServiceException("Already subscribed");
+        }
+
+        if (event.getParticipantLimit() != null &&
+                participationRepository.countByEventId(eventId) >= event.getParticipantLimit()) {
+            log.warn("Participant limit reached for event {}", eventId);
+            throw new ServiceException("Participant limit reached");
+        }
+
+        Participation participation = new Participation();
+        participation.setUser(user);
+        participation.setEvent(event);
+        participationRepository.save(participation);
     }
 
 }

@@ -43,6 +43,17 @@ public class EventController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PostMapping("/event/{eventId}/subscribe")
+    @PreAuthorize("hasAnyRole('STUDENT', 'ORGANIZER')")
+    public ResponseEntity<Void> subscribeToEvent(
+            @PathVariable Long eventId,
+            @AuthenticationPrincipal AccountUserDetails userDetails
+    ) {
+        Long userId = userDetails.getAccount().getId();
+        eventService.subscribeToEvent(userId, eventId);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/my-events")
     @PreAuthorize("hasAnyRole('ORGANIZER', 'STUDENT')")
     public ResponseEntity<List<EventShortDto>> getSubscribedEvents(

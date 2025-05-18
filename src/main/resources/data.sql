@@ -73,17 +73,44 @@ SELECT 'Фестиваль уличного искусства', 'Граффит
 INSERT INTO participation (event_id, user_id)
 SELECT e.id, a.id
 FROM event e, account a
-WHERE e.title = 'Научная конференция' AND a.email = 'student@example.com'
-  AND NOT EXISTS (SELECT 1 FROM participation WHERE event_id = e.id AND user_id = a.id);
+WHERE
+    (e.title = 'Лекция по биохимии' AND a.email = 'student@example.com') OR
+    (e.title = 'Хакатон по разработке' AND a.email = 'student@example.com') OR
+    (e.title = 'Беговой марафон' AND a.email = 'student@example.com')
+        AND NOT EXISTS (
+        SELECT 1 FROM participation
+        WHERE event_id = e.id AND user_id = a.id
+    );
 
 INSERT INTO participation (event_id, user_id)
 SELECT e.id, a.id
 FROM event e, account a
-WHERE e.title = 'Футбольный матч' AND a.email = 'student@example.com'
-  AND NOT EXISTS (SELECT 1 FROM participation WHERE event_id = e.id AND user_id = a.id);
+WHERE
+    (e.title = 'Книжная ярмарка' AND a.email = 'organizer@example.com') OR
+    (e.title = 'Опера "Евгений Онегин"' AND a.email = 'organizer@example.com')
+        AND NOT EXISTS (
+        SELECT 1 FROM participation
+        WHERE event_id = e.id AND user_id = a.id
+    );
+
+-- Пользователь с состоянием BANNED пытается участвовать (для тестирования ограничений)
+INSERT INTO participation (event_id, user_id)
+SELECT e.id, a.id
+FROM event e, account a
+WHERE
+    e.title = 'Фестиваль уличного искусства' AND a.email = 'banned@example.com'
+  AND NOT EXISTS (
+    SELECT 1 FROM participation
+    WHERE event_id = e.id AND user_id = a.id
+);
 
 INSERT INTO participation (event_id, user_id)
 SELECT e.id, a.id
 FROM event e, account a
-WHERE e.title = 'Выставка современного искусства' AND a.email = 'organizer@example.com'
-  AND NOT EXISTS (SELECT 1 FROM participation WHERE event_id = e.id AND user_id = a.id);
+WHERE
+    e.title = 'Беговой марафон' AND
+    (a.email = 'student@example.com' OR a.email = 'organizer@example.com')
+  AND NOT EXISTS (
+    SELECT 1 FROM participation
+    WHERE event_id = e.id AND user_id = a.id
+);
