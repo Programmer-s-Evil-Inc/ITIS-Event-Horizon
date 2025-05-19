@@ -64,6 +64,12 @@
             flex-grow: 1;
             display: flex;
         }
+        .event-card {
+            transition: transform 0.2s ease;
+        }
+        .event-card:hover {
+            transform: scale(1.02);
+        }
         .event-creator-form-group {
             margin: 5px 0 5px 10px; 
         }
@@ -134,21 +140,24 @@
             <h2 class="mb-4 text-center">Последние публикации</h2>
 
             <!-- Карточка статьи -->
-            <div class="card mb-4 rounded-5">
+            
+            <div class="event-card card mb-4 rounded-5">
+                <a href="#">
                 <div class="card-body rounded-5" style="background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('https://static-cse.canva.com/blob/847132/paulskorupskas7KLaxLbSXAunsplash2.jpg') no-repeat center center / cover; height: 50vh;">
                     <h3 class="card-title">Название мероприятия</h3>
                     <p class=""><i class="far fa-calendar-alt me-2"></i>12 мая 2025</p>
                     <p class="card-text">Описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание </p>
-                    <a href="#" class="btn btn-primary">Подробнее</a>
                 </div>
+                </a>    
             </div>
-            <div class="card mb-4 rounded-5">
-                <div class="card-body rounded-5" style="background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJGRPzn7p0iresNG3SRxzEciTvOxDJeZT2EQ&s') no-repeat center center / cover; height: 50vh;">
-                    <h3 class="card-title">Название мероприятия</h3>
-                    <p class=""><i class="far fa-calendar-alt me-2"></i>12 мая 2025</p>
-                    <p class="card-text">Описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание </p>
-                    <a href="#" class="btn btn-primary">Подробнее</a>
-                </div>
+            <div class="event-card card mb-4 rounded-5">
+                <a href="#">
+                    <div class="card-body rounded-5" style="background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('https://static-cse.canva.com/blob/847132/paulskorupskas7KLaxLbSXAunsplash2.jpg') no-repeat center center / cover; height: 50vh;">
+                        <h3 class="card-title">Название мероприятия</h3>
+                        <p class=""><i class="far fa-calendar-alt me-2"></i>12 мая 2025</p>
+                        <p class="card-text">Описание описание описание описание описание описание описание описание описание описание описание описание описание описание описание </p>
+                    </div>
+                </a>
             </div>
         </main>
     </div>
