@@ -3,4 +3,9 @@ package ru.kpfu.itis.webapp.dto;
 
 import java.time.LocalDateTime;
 
-public record EventShortDto(Long id, String title, LocalDateTime date, String location) {}
+public record EventShortDto(
+        Long id,
+        String title,
+        LocalDateTime date,
+        String location
+) {}
