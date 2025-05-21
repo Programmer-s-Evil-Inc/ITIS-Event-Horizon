@@ -1,5 +1,7 @@
 package ru.kpfu.itis.webapp.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.HttpStatus;
@@ -16,11 +18,13 @@ import java.util.Objects;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/upload")
+@RequestMapping("/api/upload")
 @RequiredArgsConstructor
+@Tag(name = "Upload Controller", description = "Загрузка изображений для событий")
 public class UploadController {
     private final FileService fileService;
 
+    @Operation(summary = "Загрузить изображение", description = "Доступно организаторам. Поддерживаются PNG/JPEG.")
     @PostMapping("/event")
     @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<String> uploadEventImage(

@@ -1,6 +1,7 @@
 package ru.kpfu.itis.webapp.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.*;
 
 @Data
@@ -14,6 +15,7 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Email(message = "Invalid email format")
     @Column(nullable = false, unique = true)
     private String email;
 
