@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ru.kpfu.itis.webapp.dto.EventCreationRequest;
+import ru.kpfu.itis.webapp.dto.EventFilter;
 import ru.kpfu.itis.webapp.dto.EventFullDto;
 import ru.kpfu.itis.webapp.dto.EventShortDto;
 import ru.kpfu.itis.webapp.security.details.AccountUserDetails;
@@ -21,8 +22,8 @@ public class EventController {
     private final EventService eventService;
 
     @GetMapping("/event")
-    public ResponseEntity<List<EventShortDto>> getAllEvents() {
-        return ResponseEntity.ok(eventService.getAllShortEvents());
+    public ResponseEntity<List<EventShortDto>> getAllEvents(@ModelAttribute EventFilter filter) {
+        return ResponseEntity.ok(eventService.getAllShortEvents(filter));
     }
 
     @PostMapping("/event")

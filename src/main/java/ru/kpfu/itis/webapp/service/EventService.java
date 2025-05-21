@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.kpfu.itis.webapp.dto.EventCreationRequest;
+import ru.kpfu.itis.webapp.dto.EventFilter;
 import ru.kpfu.itis.webapp.dto.EventFullDto;
 import ru.kpfu.itis.webapp.dto.EventShortDto;
 import ru.kpfu.itis.webapp.entity.Account;
@@ -35,8 +36,14 @@ public class EventService {
     @Value("${minio.bucket}")
     private String bucketName;
 
-    public List<EventShortDto> getAllShortEvents() {
-        return eventRepository.findAll().stream()
+    public List<EventShortDto> getAllShortEvents(EventFilter filter) {
+        List<Event> events;
+        if (filter.getTitle() != null && !filter.getTitle().isEmpty()) {
+            events = eventRepository.findByTitleContainingIgnoreCase(filter.getTitle());
+        } else {
+            events = eventRepository.findAll();
+        }
+        return events.stream()
                 .map(this::convertToShortDto)
                 .toList();
     }
