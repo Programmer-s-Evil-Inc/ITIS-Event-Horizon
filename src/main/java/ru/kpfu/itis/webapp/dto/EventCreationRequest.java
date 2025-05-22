@@ -20,7 +20,8 @@ public class EventCreationRequest {
     @NotBlank(message = "Location is required")
     private String location;
 
-    @PositiveOrZero(message = "Participant limit must be positive")
+    @NotNull(message = "Participant limit is required")
+    @PositiveOrZero
     private Integer participantLimit;
 
     @NotNull(message = "Category is required")

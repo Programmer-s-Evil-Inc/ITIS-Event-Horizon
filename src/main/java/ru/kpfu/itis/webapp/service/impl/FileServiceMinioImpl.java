@@ -1,7 +1,9 @@
 package ru.kpfu.itis.webapp.service.impl;
 
 import io.minio.*;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,10 +23,10 @@ public class FileServiceMinioImpl implements FileService {
         this.minioEndpoint = minioEndpoint;
         this.minioClient = minioClient;
         this.bucketName = bucketName;
-        initializeBucket();
     }
 
-    private void initializeBucket() {
+    @PostConstruct // Выполняется один раз после инициализации бина
+    public void init() {
         try {
             if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {
                 minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
@@ -34,9 +36,11 @@ public class FileServiceMinioImpl implements FileService {
                                 .config(getPublicPolicy())
                                 .build()
                 );
+                log.info("Minio bucket '{}' создан", bucketName);
             }
         } catch (Exception e) {
-            log.error("Error initializing Minio bucket", e);
+            log.error("Ошибка инициализации Minio: ", e);
+            throw new ServiceException("Не удалось подключиться к Minio");
         }
     }
 
