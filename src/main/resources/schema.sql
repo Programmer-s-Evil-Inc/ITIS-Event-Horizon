@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS participation
 (
     id BIGSERIAL PRIMARY KEY,
     event_id BIGINT REFERENCES event(id) NOT NULL,
-    user_id BIGINT REFERENCES account(id) NOT NULL
+    user_id BIGINT REFERENCES account(id) NOT NULL,
+    qr_code_url VARCHAR(255)
 );
 
 create table if not exists persistent_logins

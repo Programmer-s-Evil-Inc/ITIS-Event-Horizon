@@ -70,8 +70,8 @@ INSERT INTO event (title, description, date, location, participant_limit, organi
 SELECT 'Фестиваль уличного искусства', 'Граффити и перформансы', '2024-08-22 13:00:00', 'Нижний Новгород, Кремль', 1500, 2, 'CULTURE', 'http://localhost:9000/event-horizon/events/images/fe39ff10-6fbf-44ce-9023-24d692f81e49'
     WHERE NOT EXISTS (SELECT 1 FROM event WHERE title = 'Фестиваль уличного искусства');
 
-INSERT INTO participation (event_id, user_id)
-SELECT e.id, a.id
+INSERT INTO participation (event_id, user_id, qr_code_url)
+SELECT e.id, a.id, 'http://localhost:9000/bucket/subscriptions/qrcodes/' || e.id || '.png'
 FROM event e, account a
 WHERE
     (e.title = 'Лекция по биохимии' AND a.email = 'student@example.com') OR
@@ -82,8 +82,8 @@ WHERE
         WHERE event_id = e.id AND user_id = a.id
     );
 
-INSERT INTO participation (event_id, user_id)
-SELECT e.id, a.id
+INSERT INTO participation (event_id, user_id, qr_code_url)
+SELECT e.id, a.id, 'http://localhost:9000/bucket/subscriptions/qrcodes/' || e.id || '.png'
 FROM event e, account a
 WHERE
     (e.title = 'Книжная ярмарка' AND a.email = 'organizer@example.com') OR
@@ -104,8 +104,8 @@ WHERE
     WHERE event_id = e.id AND user_id = a.id
 );
 
-INSERT INTO participation (event_id, user_id)
-SELECT e.id, a.id
+INSERT INTO participation (event_id, user_id, qr_code_url)
+SELECT e.id, a.id, 'http://localhost:9000/bucket/subscriptions/qrcodes/' || e.id || '.png'
 FROM event e, account a
 WHERE
     e.title = 'Беговой марафон' AND

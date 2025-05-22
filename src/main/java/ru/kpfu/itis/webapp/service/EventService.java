@@ -1,10 +1,15 @@
 package ru.kpfu.itis.webapp.service;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import ru.kpfu.itis.webapp.dto.EventCreationRequest;
 import ru.kpfu.itis.webapp.dto.EventFilter;
 import ru.kpfu.itis.webapp.dto.EventFullDto;
@@ -17,7 +22,9 @@ import ru.kpfu.itis.webapp.exceptions.ServiceException;
 import ru.kpfu.itis.webapp.repository.AccountRepository;
 import ru.kpfu.itis.webapp.repository.EventRepository;
 import ru.kpfu.itis.webapp.repository.ParticipationRepository;
+import ru.kpfu.itis.webapp.utils.ByteArrayMultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,6 +36,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final ParticipationRepository participationRepository;
     private final AccountRepository accountRepository;
+    private final FileService fileService;
 
     @Value("${minio.endpoint}")
     private String minioEndpoint;
@@ -139,6 +147,26 @@ public class EventService {
         participation.setUser(user);
         participation.setEvent(event);
         participationRepository.save(participation);
+
+        String qrCodeUrl = generateAndUploadQrCode(participation.getId());
+        participation.setQrCodeUrl(qrCodeUrl);
+        participationRepository.save(participation);
+
     }
 
+    private String generateAndUploadQrCode(Long subscriptionId) {
+        try {
+            String qrCodeText = "http://localhost:8080/api/events/valid?subscriptionId=" + subscriptionId;
+            BitMatrix bitMatrix = new MultiFormatWriter().encode(qrCodeText, BarcodeFormat.QR_CODE, 300, 300);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
+            byte[] qrCodeBytes = outputStream.toByteArray();
+
+            String objectName = "subscriptions/qrcodes/" + subscriptionId + ".png";
+            MultipartFile qrCodeFile = new ByteArrayMultipartFile(qrCodeBytes, objectName);
+            return fileService.uploadFile(qrCodeFile, objectName);
+        } catch (Exception e) {
+            throw new ServiceException("Ошибка генерации QR-кода");
+        }
+    }
 }
