@@ -23,10 +23,10 @@ public class FileServiceMinioImpl implements FileService {
         this.minioEndpoint = minioEndpoint;
         this.minioClient = minioClient;
         this.bucketName = bucketName;
+        initializeBucket();
     }
 
-    @PostConstruct // Выполняется один раз после инициализации бина
-    public void init() {
+    private void initializeBucket() {
         try {
             if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {
                 minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
@@ -36,11 +36,9 @@ public class FileServiceMinioImpl implements FileService {
                                 .config(getPublicPolicy())
                                 .build()
                 );
-                log.info("Minio bucket '{}' создан", bucketName);
             }
         } catch (Exception e) {
-            log.error("Ошибка инициализации Minio: ", e);
-            throw new ServiceException("Не удалось подключиться к Minio");
+            log.error("Error initializing Minio bucket", e);
         }
     }
 
