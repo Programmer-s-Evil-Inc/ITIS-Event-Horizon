@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ru.kpfu.itis.webapp.dto.EventCreationRequest;
+import ru.kpfu.itis.webapp.dto.EventFilter;
 import ru.kpfu.itis.webapp.dto.EventFullDto;
 import ru.kpfu.itis.webapp.dto.EventShortDto;
 import ru.kpfu.itis.webapp.security.details.AccountUserDetails;
@@ -26,8 +27,8 @@ public class EventController {
 
     @Operation(summary = "Список событий", description = "Получить все события (краткая информация)")
     @GetMapping
-    public ResponseEntity<List<EventShortDto>> getAllEvents() {
-        return ResponseEntity.ok(eventService.getAllShortEvents());
+    public ResponseEntity<List<EventShortDto>> getAllEvents(@ModelAttribute EventFilter filter) {
+        return ResponseEntity.ok(eventService.getAllShortEvents(filter));
     }
 
     @Operation(summary = "Создать событие", description = "Доступно организаторам")
