@@ -18,5 +18,5 @@ public class Participation {
     private Event event;
 
     @Column
-    private String qrCodeUrl;
+    private String qrCodeUid;
 }

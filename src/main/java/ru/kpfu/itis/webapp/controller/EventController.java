@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.service.spi.ServiceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,9 +13,6 @@ import ru.kpfu.itis.webapp.dto.EventCreationRequest;
 import ru.kpfu.itis.webapp.dto.EventFilter;
 import ru.kpfu.itis.webapp.dto.EventFullDto;
 import ru.kpfu.itis.webapp.dto.EventShortDto;
-import ru.kpfu.itis.webapp.entity.Participation;
-import ru.kpfu.itis.webapp.exceptions.DataNotFoundException;
-import ru.kpfu.itis.webapp.repository.ParticipationRepository;
 import ru.kpfu.itis.webapp.security.details.AccountUserDetails;
 import ru.kpfu.itis.webapp.service.EventService;
 
@@ -28,7 +24,6 @@ import java.util.List;
 @Tag(name = "Event Controller", description = "Управление событиями: создание, подписки, просмотр")
 public class EventController {
     private final EventService eventService;
-    private final ParticipationRepository participationRepository;
 
     @Operation(summary = "Список событий", description = "Получить все события (краткая информация)")
     @GetMapping
@@ -68,16 +63,6 @@ public class EventController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "Мои события", description = "События, на которые подписан текущий пользователь")
-    @GetMapping("/my")
-    @PreAuthorize("hasAnyRole('ORGANIZER', 'STUDENT')")
-    public ResponseEntity<List<EventShortDto>> getSubscribedEvents(
-            @AuthenticationPrincipal AccountUserDetails userDetails
-    ) {
-        Long userId = userDetails.getAccount().getId();
-        return ResponseEntity.ok(eventService.getSubscribedEvents(userId));
-    }
-
     @Operation(summary = "События организатора", description = "События, созданные текущим организатором")
     @GetMapping("/organizer")
     @PreAuthorize("hasRole('ORGANIZER')")
@@ -86,37 +71,6 @@ public class EventController {
     ) {
         Long organizerId = userDetails.getAccount().getId();
         return ResponseEntity.ok(eventService.getEventsByOrganizer(organizerId));
-    }
-
-    @Operation(summary = "Валидация подписки", description = "Проверка подписки по QR-коду")
-    @GetMapping("/valid")
-    @PreAuthorize("hasRole('ORGANIZER')")
-    public ResponseEntity<String> validateSubscription(
-            @RequestParam Long subscriptionId
-    ) {
-        Participation participation = participationRepository.findById(subscriptionId)
-                .orElseThrow(() -> new DataNotFoundException("Subscription not found"));
-
-        return ResponseEntity.ok("Подписка действительна для пользователя: "
-                + participation.getUser().getEmail());
-    }
-
-    @Operation(summary = "Получить QR-код подписки", description = "Доступно владельцу подписки")
-    @GetMapping("/{eventId}/subscription/{subscriptionId}/qrcode")
-    @PreAuthorize("hasAnyRole('STUDENT', 'ORGANIZER')")
-    public ResponseEntity<String> getSubscriptionQrCode(
-            @PathVariable Long eventId,
-            @PathVariable Long subscriptionId,
-            @AuthenticationPrincipal AccountUserDetails userDetails
-    ) {
-        Participation participation = participationRepository.findById(subscriptionId)
-                .orElseThrow(() -> new DataNotFoundException("Subscription not found"));
-
-        if (!participation.getUser().getId().equals(userDetails.getAccount().getId())) {
-            throw new ServiceException("Access denied");
-        }
-
-        return ResponseEntity.ok(participation.getQrCodeUrl());
     }
 
 }

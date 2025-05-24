@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS account (
     password VARCHAR(255) NOT NULL,
     role VARCHAR(20) NOT NULL CHECK (role IN ('STUDENT', 'ORGANIZER', 'GUEST')),
     state VARCHAR(20) NOT NULL CHECK (state IN ('CONFIRMED', 'NOT_CONFIRMED', 'DELETED', 'BANNED')),
-    photo_url VARCHAR(255)
+    photo_uid VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS event (
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS event (
     participant_limit INTEGER,
     organizer_id BIGINT REFERENCES account(id),
     category VARCHAR(50) NOT NULL,
-    image_url VARCHAR(255)
+    image_uid VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS participation
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS participation
     id BIGSERIAL PRIMARY KEY,
     event_id BIGINT REFERENCES event(id) NOT NULL,
     user_id BIGINT REFERENCES account(id) NOT NULL,
-    qr_code_url VARCHAR(255)
+    qr_code_uid VARCHAR(255)
 );
 
 create table if not exists persistent_logins

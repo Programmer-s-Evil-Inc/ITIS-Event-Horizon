@@ -7,7 +7,6 @@ import com.google.zxing.common.BitMatrix;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.kpfu.itis.webapp.dto.EventCreationRequest;
@@ -38,12 +37,6 @@ public class EventService {
     private final AccountRepository accountRepository;
     private final FileService fileService;
 
-    @Value("${minio.endpoint}")
-    private String minioEndpoint;
-
-    @Value("${minio.bucket}")
-    private String bucketName;
-
     public List<EventShortDto> getAllShortEvents(EventFilter filter) {
         List<Event> events;
         if (filter.getTitle() != null && !filter.getTitle().isEmpty()) {
@@ -57,11 +50,13 @@ public class EventService {
     }
 
     private EventShortDto convertToShortDto(Event event) {
+        String imageUrl = fileService.getBaseUrl() + event.getImageUid();
         return new EventShortDto(
                 event.getId(),
                 event.getTitle(),
                 event.getDate(),
-                event.getLocation()
+                event.getDescription(),
+                imageUrl
         );
     }
 
@@ -71,6 +66,7 @@ public class EventService {
     }
 
     private EventFullDto convertToFullDto(Event event) {
+        String imageUrl = fileService.getBaseUrl() + event.getImageUid();
         return new EventFullDto(
                 event.getId(),
                 event.getTitle(),
@@ -80,7 +76,7 @@ public class EventService {
                 event.getParticipantLimit(),
                 event.getOrganizerId(),
                 event.getCategory(),
-                event.getImageUrl()
+                imageUrl
         );
     }
 
@@ -103,6 +99,10 @@ public class EventService {
             throw new IllegalStateException("Event limit reached");
         }
 
+        if (!fileService.fileExists(request.getImageUuid())) {
+            throw new ServiceException("Image not found: " + request.getImageUuid());
+        }
+
         Event event = Event.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -111,17 +111,10 @@ public class EventService {
                 .participantLimit(request.getParticipantLimit())
                 .organizerId(organizerId)
                 .category(request.getCategory())
-                .imageUrl(constructImageUrl(request.getImageUuid()))
+                .imageUid(request.getImageUuid())
                 .build();
 
         eventRepository.save(event);
-    }
-
-    private String constructImageUrl(String imageUuid) {
-        return String.format("%s/%s/events/images/%s",
-                minioEndpoint,
-                bucketName,
-                imageUuid);
     }
 
     @Transactional
@@ -146,10 +139,9 @@ public class EventService {
         Participation participation = new Participation();
         participation.setUser(user);
         participation.setEvent(event);
-        participationRepository.save(participation);
 
         String qrCodeUrl = generateAndUploadQrCode(participation.getId());
-        participation.setQrCodeUrl(qrCodeUrl);
+        participation.setQrCodeUid(qrCodeUrl);
         participationRepository.save(participation);
 
     }

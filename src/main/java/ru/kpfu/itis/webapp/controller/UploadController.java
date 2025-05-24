@@ -37,10 +37,10 @@ public class UploadController {
 
             String uuid = UUID.randomUUID().toString();
             String extension = FilenameUtils.getExtension(file.getOriginalFilename());
-            String objectName = "events/images/" + uuid + "." + extension;
+            String fileUid = "events/images/" + uuid + "." + extension;
 
-            String fileUrl = fileService.uploadFile(file, objectName);
-            return ResponseEntity.ok(fileUrl);
+            fileService.uploadFile(file, fileUid);
+            return ResponseEntity.ok(fileUid);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Upload failed: " + e.getMessage());

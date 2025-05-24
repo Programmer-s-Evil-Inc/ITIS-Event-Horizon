@@ -24,7 +24,7 @@ public class ProfileController {
         profileDto.setId(account.getId());
         profileDto.setEmail(account.getEmail());
         profileDto.setRole(account.getRole().name());
-        profileDto.setPhotoUrl(account.getPhotoUrl());
+        profileDto.setPhotoUrl(account.getPhotoUid());
         return ResponseEntity.ok(profileDto);
     }
 

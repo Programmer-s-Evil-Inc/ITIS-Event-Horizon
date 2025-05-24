@@ -38,6 +38,6 @@ public class Event {
     private EventCategory category;
 
     @Column
-    private String imageUrl;
+    private String imageUid;
 
 }

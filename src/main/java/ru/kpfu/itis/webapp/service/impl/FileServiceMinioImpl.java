@@ -53,6 +53,26 @@ public class FileServiceMinioImpl implements FileService {
         return getFileUrl(objectName);
     }
 
+    @Override
+    public String getBaseUrl() {
+        return minioEndpoint + "/" + bucketName + "/";
+    }
+
+    @Override
+    public boolean fileExists(String objectName) {
+        try {
+            minioClient.statObject(
+                    StatObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(objectName)
+                            .build()
+            );
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private String getFileUrl(String objectName) {
         return String.format(
                 "%s/%s/%s",
