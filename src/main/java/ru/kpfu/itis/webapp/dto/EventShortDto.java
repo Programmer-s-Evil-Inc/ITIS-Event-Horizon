@@ -8,5 +8,5 @@ public record EventShortDto(
         String title,
         LocalDateTime date,
         String description,
-        String imageUid
+        String image_url
 ) {}

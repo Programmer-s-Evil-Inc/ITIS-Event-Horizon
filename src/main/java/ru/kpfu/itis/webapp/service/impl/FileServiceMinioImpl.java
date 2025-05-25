@@ -21,13 +21,17 @@ public class FileServiceMinioImpl implements FileService {
         this.minioEndpoint = minioEndpoint;
         this.minioClient = minioClient;
         this.bucketName = bucketName;
+        log.info("Initializing Minio storage [Bucket: {}, Endpoint: {}]", this.bucketName, this.minioEndpoint);
         initializeBucket();
     }
 
     private void initializeBucket() {
         try {
             if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {
+                log.info("Creating bucket: {}", bucketName);
                 minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+
+                log.debug("Setting public policy for bucket: {}", bucketName);
                 minioClient.setBucketPolicy(
                         SetBucketPolicyArgs.builder()
                                 .bucket(bucketName)

@@ -50,13 +50,12 @@ public class EventService {
     }
 
     private EventShortDto convertToShortDto(Event event) {
-        String imageUrl = fileService.getBaseUrl() + event.getImageUid();
         return new EventShortDto(
                 event.getId(),
                 event.getTitle(),
                 event.getDate(),
                 event.getDescription(),
-                imageUrl
+                buildImageUrl(event.getImageUid())
         );
     }
 
@@ -66,7 +65,6 @@ public class EventService {
     }
 
     private EventFullDto convertToFullDto(Event event) {
-        String imageUrl = fileService.getBaseUrl() + event.getImageUid();
         return new EventFullDto(
                 event.getId(),
                 event.getTitle(),
@@ -76,8 +74,12 @@ public class EventService {
                 event.getParticipantLimit(),
                 event.getOrganizerId(),
                 event.getCategory(),
-                imageUrl
+                buildImageUrl(event.getImageUid())
         );
+    }
+
+    private String buildImageUrl(String imageUid) {
+        return fileService.getBaseUrl() + imageUid;
     }
 
     public List<EventShortDto> getEventsByOrganizer(Long organizerId) {
@@ -99,7 +101,7 @@ public class EventService {
             throw new IllegalStateException("Event limit reached");
         }
 
-        if (!fileService.fileExists(request.getImageUuid())) {
+        if (!fileService.fileExists("/events/images/" + request.getImageUuid())) {
             throw new ServiceException("Image not found: " + request.getImageUuid());
         }
 
@@ -140,15 +142,15 @@ public class EventService {
         participation.setUser(user);
         participation.setEvent(event);
 
-        String qrCodeUrl = generateAndUploadQrCode(participation.getId());
-        participation.setQrCodeUid(qrCodeUrl);
         participationRepository.save(participation);
-
+        String qrCodeUid = generateAndUploadQrCode(participation.getId());
+        participation.setQrCodeUid(qrCodeUid);
+        participationRepository.save(participation);
     }
 
     private String generateAndUploadQrCode(Long subscriptionId) {
         try {
-            String qrCodeText = "http://localhost:8080/api/events/valid?subscriptionId=" + subscriptionId;
+            String qrCodeText = "http://localhost:8080/api/events/subscriptions/validate?subscriptionId=" + subscriptionId;
             BitMatrix bitMatrix = new MultiFormatWriter().encode(qrCodeText, BarcodeFormat.QR_CODE, 300, 300);
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
@@ -156,7 +158,8 @@ public class EventService {
 
             String objectName = "subscriptions/qrcodes/" + subscriptionId + ".png";
             MultipartFile qrCodeFile = new ByteArrayMultipartFile(qrCodeBytes, objectName);
-            return fileService.uploadFile(qrCodeFile, objectName);
+            fileService.uploadFile(qrCodeFile, objectName);
+            return objectName;
         } catch (Exception e) {
             throw new ServiceException("Ошибка генерации QR-кода");
         }
