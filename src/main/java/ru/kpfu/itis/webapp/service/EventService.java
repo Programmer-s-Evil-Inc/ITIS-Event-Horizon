@@ -1,10 +1,14 @@
 package ru.kpfu.itis.webapp.service;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import ru.kpfu.itis.webapp.dto.EventCreationRequest;
 import ru.kpfu.itis.webapp.dto.EventFilter;
 import ru.kpfu.itis.webapp.dto.EventFullDto;
@@ -17,7 +21,9 @@ import ru.kpfu.itis.webapp.exceptions.ServiceException;
 import ru.kpfu.itis.webapp.repository.AccountRepository;
 import ru.kpfu.itis.webapp.repository.EventRepository;
 import ru.kpfu.itis.webapp.repository.ParticipationRepository;
+import ru.kpfu.itis.webapp.utils.ByteArrayMultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,12 +35,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final ParticipationRepository participationRepository;
     private final AccountRepository accountRepository;
-
-    @Value("${minio.endpoint}")
-    private String minioEndpoint;
-
-    @Value("${minio.bucket}")
-    private String bucketName;
+    private final FileService fileService;
 
     public List<EventShortDto> getAllShortEvents(EventFilter filter) {
         List<Event> events;
@@ -53,7 +54,8 @@ public class EventService {
                 event.getId(),
                 event.getTitle(),
                 event.getDate(),
-                event.getLocation()
+                event.getDescription(),
+                buildImageUrl(event.getImageUid())
         );
     }
 
@@ -72,8 +74,12 @@ public class EventService {
                 event.getParticipantLimit(),
                 event.getOrganizerId(),
                 event.getCategory(),
-                event.getImageUrl()
+                buildImageUrl(event.getImageUid())
         );
+    }
+
+    private String buildImageUrl(String imageUid) {
+        return fileService.getBaseUrl() + imageUid;
     }
 
     public List<EventShortDto> getEventsByOrganizer(Long organizerId) {
@@ -95,6 +101,10 @@ public class EventService {
             throw new IllegalStateException("Event limit reached");
         }
 
+        if (!fileService.fileExists("/events/images/" + request.getImageUuid())) {
+            throw new ServiceException("Image not found: " + request.getImageUuid());
+        }
+
         Event event = Event.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -103,17 +113,10 @@ public class EventService {
                 .participantLimit(request.getParticipantLimit())
                 .organizerId(organizerId)
                 .category(request.getCategory())
-                .imageUrl(constructImageUrl(request.getImageUuid()))
+                .imageUid(request.getImageUuid())
                 .build();
 
         eventRepository.save(event);
-    }
-
-    private String constructImageUrl(String imageUuid) {
-        return String.format("%s/%s/events/images/%s",
-                minioEndpoint,
-                bucketName,
-                imageUuid);
     }
 
     @Transactional
@@ -138,7 +141,27 @@ public class EventService {
         Participation participation = new Participation();
         participation.setUser(user);
         participation.setEvent(event);
+
+        participationRepository.save(participation);
+        String qrCodeUid = generateAndUploadQrCode(participation.getId());
+        participation.setQrCodeUid(qrCodeUid);
         participationRepository.save(participation);
     }
 
+    private String generateAndUploadQrCode(Long subscriptionId) {
+        try {
+            String qrCodeText = "http://localhost:8080/api/events/subscriptions/validate?subscriptionId=" + subscriptionId;
+            BitMatrix bitMatrix = new MultiFormatWriter().encode(qrCodeText, BarcodeFormat.QR_CODE, 300, 300);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
+            byte[] qrCodeBytes = outputStream.toByteArray();
+
+            String objectName = "subscriptions/qrcodes/" + subscriptionId + ".png";
+            MultipartFile qrCodeFile = new ByteArrayMultipartFile(qrCodeBytes, objectName);
+            fileService.uploadFile(qrCodeFile, objectName);
+            return objectName;
+        } catch (Exception e) {
+            throw new ServiceException("Ошибка генерации QR-кода");
+        }
+    }
 }

@@ -28,12 +28,19 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/organizer/**").hasRole("ORGANIZER")
-                        .requestMatchers("/student/**").hasRole("STUDENT")
-                        .requestMatchers("/profile/**", "/my-events", "/organizer/events").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/upload/event").hasRole("ORGANIZER")
-                        .requestMatchers(HttpMethod.POST, "/event").hasRole("ORGANIZER")
-                        .requestMatchers(HttpMethod.POST, "/event/*/subscribe").hasAnyRole("STUDENT", "ORGANIZER")
+                        // Организаторы
+                        .requestMatchers("/api/events/organizer/**").hasRole("ORGANIZER")
+                        .requestMatchers(HttpMethod.POST, "/api/events").hasRole("ORGANIZER")
+                        .requestMatchers(HttpMethod.POST, "/api/upload/event").hasRole("ORGANIZER")
+                        .requestMatchers(HttpMethod.GET, "/api/events/subscriptions/validate").hasRole("ORGANIZER")
+
+                        // Студенты и организаторы
+                        .requestMatchers(HttpMethod.POST, "/api/events/*/subscribe").hasAnyRole("STUDENT", "ORGANIZER")
+                        .requestMatchers(HttpMethod.GET, "/api/events/subscriptions").hasAnyRole("STUDENT", "ORGANIZER")
+                        .requestMatchers(HttpMethod.GET, "/api/events/*/qrcode").hasAnyRole("STUDENT", "ORGANIZER")
+
+                        // Общие правила
+                        .requestMatchers("/api/profile/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .formLogin(form -> form

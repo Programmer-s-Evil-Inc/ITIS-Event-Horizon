@@ -16,4 +16,7 @@ public class Participation {
 
     @ManyToOne
     private Event event;
+
+    @Column
+    private String qrCodeUid;
 }

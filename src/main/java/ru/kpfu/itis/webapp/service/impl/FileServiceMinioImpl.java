@@ -21,13 +21,17 @@ public class FileServiceMinioImpl implements FileService {
         this.minioEndpoint = minioEndpoint;
         this.minioClient = minioClient;
         this.bucketName = bucketName;
+        log.info("Initializing Minio storage [Bucket: {}, Endpoint: {}]", this.bucketName, this.minioEndpoint);
         initializeBucket();
     }
 
     private void initializeBucket() {
         try {
             if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {
+                log.info("Creating bucket: {}", bucketName);
                 minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+
+                log.debug("Setting public policy for bucket: {}", bucketName);
                 minioClient.setBucketPolicy(
                         SetBucketPolicyArgs.builder()
                                 .bucket(bucketName)
@@ -51,6 +55,26 @@ public class FileServiceMinioImpl implements FileService {
                         .build()
         );
         return getFileUrl(objectName);
+    }
+
+    @Override
+    public String getBaseUrl() {
+        return minioEndpoint + "/" + bucketName + "/";
+    }
+
+    @Override
+    public boolean fileExists(String objectName) {
+        try {
+            minioClient.statObject(
+                    StatObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(objectName)
+                            .build()
+            );
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private String getFileUrl(String objectName) {

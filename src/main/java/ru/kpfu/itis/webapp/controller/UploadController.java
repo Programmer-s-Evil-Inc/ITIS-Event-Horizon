@@ -7,16 +7,14 @@ import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.kpfu.itis.webapp.service.FileService;
 
-import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api/upload")
 @RequiredArgsConstructor
@@ -31,15 +29,24 @@ public class UploadController {
             @RequestParam("file") MultipartFile file
     ) {
         try {
-            if (!Objects.requireNonNull(file.getContentType()).startsWith("image/")) {
-                return ResponseEntity.badRequest().body("Only images are allowed");
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body("File is empty");
+            }
+
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename == null || originalFilename.isBlank()) {
+                return ResponseEntity.badRequest().body("Invalid file name");
+            }
+
+            String extension = FilenameUtils.getExtension(originalFilename);
+            if (!Set.of("png", "jpg", "jpeg").contains(extension.toLowerCase())) {
+                return ResponseEntity.badRequest().body("Unsupported image format");
             }
 
             String uuid = UUID.randomUUID().toString();
-            String extension = FilenameUtils.getExtension(file.getOriginalFilename());
-            String objectName = "events/images/" + uuid + "." + extension;
+            String fileUid = "events/images/" + uuid + "." + extension;
 
-            String fileUrl = fileService.uploadFile(file, objectName);
+            String fileUrl = fileService.uploadFile(file, fileUid);
             return ResponseEntity.ok(fileUrl);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
