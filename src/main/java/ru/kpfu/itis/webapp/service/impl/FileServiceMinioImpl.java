@@ -65,12 +65,10 @@ public class FileServiceMinioImpl implements FileService {
     @Override
     public boolean fileExists(String objectName) {
         try {
-            minioClient.statObject(
-                    StatObjectArgs.builder()
+            minioClient.statObject(StatObjectArgs.builder()
                             .bucket(bucketName)
                             .object(objectName)
-                            .build()
-            );
+                            .build());
             return true;
         } catch (Exception e) {
             return false;
