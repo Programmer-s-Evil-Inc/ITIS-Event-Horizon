@@ -67,10 +67,7 @@ public class MinioInitializer implements ApplicationRunner {
                     byte[] qrCodeBytes = generateQRCode(validationUrl);
 
                     MultipartFile qrCodeFile = new ByteArrayMultipartFile(qrCodeBytes, objectName);
-                    String uploadedUid = fileService.uploadFile(qrCodeFile, objectName);
-
-                    participation.setQrCodeUid(uploadedUid);
-                    participationRepository.save(participation);
+                    fileService.uploadFile(qrCodeFile, objectName);
 
                     log.info("Uploaded QR-code for participation: {}", participation.getId());
                 } catch (Exception e) {
