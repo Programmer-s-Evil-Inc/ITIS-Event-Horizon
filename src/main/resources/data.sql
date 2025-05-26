@@ -71,13 +71,23 @@ SELECT 'Фестиваль уличного искусства', 'Граффит
     WHERE NOT EXISTS (SELECT 1 FROM event WHERE title = 'Фестиваль уличного искусства');
 
 INSERT INTO participation (event_id, user_id, qr_code_uid)
-SELECT e.id, a.id, 'subscriptions/qrcodes/' || e.id || '.png'
-FROM event e, account a
+SELECT
+    e.id,
+    a.id,
+    'subscriptions/qrcodes/' || e.id || '.png'
+FROM
+    event e,
+    account a
 WHERE
-    (e.title = 'Научная конференция' AND a.email = 'organizer@example.com') OR
-    (e.title = 'Футбольный матч' AND a.email = 'organizer@example.com') OR
-    (e.title = 'Выставка современного искусства' AND a.email = 'organizer@example.com')
-        AND NOT EXISTS (
-        SELECT 1 FROM participation
-        WHERE event_id = e.id AND user_id = a.id
-    );
+    (
+        (e.title = 'Научная конференция' AND a.email = 'organizer@example.com') OR
+        (e.title = 'Футбольный матч' AND a.email = 'organizer@example.com') OR
+        (e.title = 'Выставка современного искусства' AND a.email = 'organizer@example.com')
+        )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM participation p
+    WHERE
+        p.event_id = e.id
+      AND p.user_id = a.id
+);
