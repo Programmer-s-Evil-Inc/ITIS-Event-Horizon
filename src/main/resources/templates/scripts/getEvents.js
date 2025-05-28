@@ -35,48 +35,50 @@ function renderEvents(events) {
         .join('');
 }
 
-// Рендеринг одного события
+// Рендеринг одного события (вряд ли корректно работает, но логика та же)
 function createEventCard(event) {
+    const imgUrl = event.image_url;
+    const eventTitle = event.title;
+    const eventDate = event.date;
+    const eventId = event.id;
+    const eventDescription = event.description;
+    // Создаём контейнер карточки
     const card = document.createElement('div');
     card.className = 'event-card card mb-4 rounded-5';
 
+    // Создаём ссылку-обёртку
     const link = document.createElement('a');
 
+    // Основной контейнер контента
     const cardBody = document.createElement('div');
-    cardBody.className = 'card-body rounded-5 position-relative';
-
-    // Фоновое изображение через imageUuid
+    cardBody.className = 'card-body rounded-5';
     cardBody.style.background = `
         linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
-        ${event.image_url
-            ? `url('${event.image_url}') no-repeat center center/cover`
-            : '#f0f0f0'
-        }
+        url('${encodeURI(imgUrl)}') no-repeat center center / cover
     `;
     cardBody.style.height = '50vh';
 
-    // Заголовок
+    // Заголовок мероприятия
     const title = document.createElement('h3');
     title.className = 'card-title';
-    title.textContent = event.title;
+    title.textContent = eventTitle;
 
-    // Дата
+    // Блок с датой
     const date = document.createElement('p');
-    date.className = 'mb-1';
-    date.innerHTML = `<i class="far fa-calendar-alt me-2"></i>${formatDate(event.date)}`;
+    date.innerHTML = `<i class="far fa-calendar-alt me-2"></i>${formatDate(eventDate)}`;
 
-    // Описание
+    // Описание мероприятия
     const description = document.createElement('p');
     description.className = 'card-text';
-    description.textContent = event.description;
+    description.textContent = eventDescription;
 
-    // Сборка элементов
-    cardBody.append(
-        title,
-        date,
-        description,
-    );
+    const id = document.createElement('p');
+    id.className = 'card-id';
+    id.textContent = eventId;
+    id.style.visibility = 'hidden';
 
+    // Собираем структуру
+    cardBody.append(title, date, description, id);
     link.appendChild(cardBody);
     card.appendChild(link);
 
