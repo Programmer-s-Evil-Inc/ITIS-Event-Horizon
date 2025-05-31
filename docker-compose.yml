@@ -1,4 +1,23 @@
 services:
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: horizon-app
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=event-horizon-db
+      - DB_PORT=5432
+      - MINIO_HOST=minio
+      - MINIO_PORT=9000
+    depends_on:
+      - postgres
+      - minio
+    networks:
+      - event-horizon
+
   postgres:
     image: postgres:latest
     container_name: event-horizon-db
@@ -11,6 +30,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
+    networks:
+      - event-horizon
 
   minio:
     image: minio/minio
@@ -24,11 +45,13 @@ services:
       MINIO_ROOT_PASSWORD: minio_qwerty
     volumes:
       - minio_data:/data
+    networks:
+      - event-horizon
 
 volumes:
   postgres_data:
   minio_data:
 
 networks:
-  rg-judge-network:
+  event-horizon:
     driver: bridge
