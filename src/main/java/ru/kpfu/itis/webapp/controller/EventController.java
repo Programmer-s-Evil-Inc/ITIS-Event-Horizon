@@ -59,6 +59,18 @@ public class EventController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Удалить событие", description = "Доступно организатору события")
+    @DeleteMapping("/{eventId}")
+    @PreAuthorize("hasRole('ORGANIZER')")
+    public ResponseEntity<Void> deleteEvent(
+            @PathVariable Long eventId,
+            @AuthenticationPrincipal AccountUserDetails userDetails
+    ) {
+        Long organizerId = userDetails.getAccount().getId();
+        eventService.deleteEvent(eventId, organizerId);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "Подписаться на событие", description = "Доступно студентам и организаторам")
     @PostMapping("/{eventId}/subscribe")
     @PreAuthorize("hasAnyRole('STUDENT', 'ORGANIZER')")
