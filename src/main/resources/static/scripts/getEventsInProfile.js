@@ -53,7 +53,7 @@ function createEventCard(event) {
     const cardImage = document.createElement('div');
     cardImage.className = 'col-md-7';
     cardImage.style.background = `
-        height: 350px; background-image: url('${encodeURI(imgUrl)}'); 
+        height: 350px; background-image: url('${encodeURI(imgUrl)}');
         background-size: cover; background-position: center;
     `;
     cardImage.style.height = '40vh';

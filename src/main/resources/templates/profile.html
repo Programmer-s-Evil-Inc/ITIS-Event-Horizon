@@ -37,7 +37,7 @@
 <!-- Навигационная панель -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
     <div class="container-fluid">
-        <a class="navbar-brand" href="home.html">
+        <a class="navbar-brand" href="/">
             <img src="https://kpfu.ru/docs/F81942084654/img656916153.jpg" class="rounded-2" alt="Лого" height="45">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -46,7 +46,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link fw-bold" href="home.html">Главная</a>
+                    <a class="nav-link fw-bold" href="/">Главная</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link fw-bold" href="#footer">О нас</a>
@@ -68,8 +68,8 @@
             <div class="rounded-circle bg-secondary w-100 h-100" style="background-image: url('https://s0.rbk.ru/v6_top_pics/media/img/2/62/346977209827622.jpeg'); background-size: cover; background-position: center;"></div>
         </div>
         <div>
-            <h1 class="fw-bold mb-3">Павел Дуров</h1>
-            <p class="mb-0">С самого детства Павел понимал: зачем нужна одежда, если есть биткоины и уверенность в себе? Говорят, его первым словом было не "мама", а "контрастный душ". Он вырос, создал "ВКонтакте", но потом ушёл, потому что соцсеть требовала слишком много одежды — а он предпочитает digital-натурализм.  Когда обычные люди утром пьют кофе, Павел выливает на себя ведро ледяной воды, делает селфи и пишет пост про "осознанность". Он не носит майки не потому, что их нет в его гардеробе, а потому, что его гардероб — это метафора. "Зачем прикрывать то, что и так кристально чисто?" — спрашивает он, поправляя воображаемый галстук на голом торсе. Его любимый способ общения — не голосовые сообщения, а фотографии с видом на заснеженные горы, где он медитирует в сугробе. "Холод — это новый digital", — говорит он, пока обычные смертные дрожат в свитерах. Его жизненное кредо: "Блокчейн, безусловная любовь и никаких футболок". В мире, где все носят маски, он остаётся верен себе — максимально раздетым и максимально свободным. И если однажды Telegram забанит все фото без майки — он просто создаст новый мессенджер - ToplessGram.</p>
+            <h1 class="fw-bold mb-3">Фамилия Имя</h1>
+            <p class="mb-0">Описание события... Lorem ipsum dolor sit amet, consectetur adipisicing elit. Assumenda earum eligendi ex fugiat nisi rerum sunt voluptatibus. Deserunt dolorem eos est fugit illum neque non obcaecati, repellat rerum veniam vero.</p>
         </div>
     </div>
 
@@ -133,8 +133,23 @@
     </div>
 
     <h3 class="text-center fw-bold my-5">Мероприятия, в которых ты участвуешь:</h3>
-    <div class="border border-2 rounded-3 p-4">
 
+    <div class="border border-2 rounded-3 p-4">
+        <template id="event-template">
+        <div class="row my-4">
+            <a href="#">
+            <div class="col-md-7 event-image w-100 rounded-4 ratio ratio-16x9">
+                <h3 class="event-title p-3 text-white fw-bold fs-3"></h3>
+            </div>
+            <div class="col-md-5">
+                <div class="bg-light rounded-4 w-100 h-100 p-4 d-flex flex-column justify-content-between">
+                    <p class="event-date"></p>
+                    <p class="event-description"></p>
+                </div>
+            </div>
+            </a>
+        </div>
+        </template>
         <!-- Этот контейнер будет заполняться через JS -->
         <div class="participated-events-container"></div>
 
@@ -175,6 +190,6 @@
 
 <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="scripts/getEventsInProfile.js"></script>
+    <script src="/scripts/getEventsInProfile.js"></script>
 </body>
 </html>

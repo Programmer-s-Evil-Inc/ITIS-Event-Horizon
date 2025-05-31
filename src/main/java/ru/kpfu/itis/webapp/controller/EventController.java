@@ -23,7 +23,7 @@ import ru.kpfu.itis.webapp.service.FileService;
 
 import java.util.List;
 
-@CrossOrigin
+@CrossOrigin(origins = "*")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/events")
