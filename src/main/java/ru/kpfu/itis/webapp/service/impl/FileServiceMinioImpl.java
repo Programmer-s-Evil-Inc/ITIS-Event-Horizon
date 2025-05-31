@@ -67,9 +67,9 @@ public class FileServiceMinioImpl implements FileService {
                             .object(objectName)
                             .build()
             );
-        } catch (MinioException | IOException e) {
-            log.error("Error deleting file: {}. Cause: {}", objectName, e.getMessage(), e);
-            throw new ServiceException("File deletion failed due to MinIO error: " + e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("Error deleting file: {}", objectName, e);
+            throw new ServiceException("File deletion failed");
         }
     }
 
