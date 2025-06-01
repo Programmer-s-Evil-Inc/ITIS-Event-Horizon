@@ -12,6 +12,8 @@ services:
       - DB_PORT=5432
       - MINIO_HOST=minio
       - MINIO_PORT=9000
+      - MINIO_ACCESS_KEY=minio_user
+      - MINIO_SECRET_KEY=minio_qwerty
     depends_on:
       - postgres
       - minio
