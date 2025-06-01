@@ -27,6 +27,4 @@ public class EventCreationRequest {
     @NotNull(message = "Category is required")
     private EventCategory category;
 
-    @NotBlank(message = "Image UUID is required")
-    private String imageUuid;
 }
