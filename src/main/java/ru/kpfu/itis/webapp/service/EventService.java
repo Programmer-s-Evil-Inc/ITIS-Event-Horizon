@@ -7,6 +7,7 @@ import com.google.zxing.common.BitMatrix;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.kpfu.itis.webapp.dto.EventCreationRequest;
@@ -163,5 +164,30 @@ public class EventService {
         } catch (Exception e) {
             throw new ServiceException("Ошибка генерации QR-кода");
         }
+    }
+
+    @Transactional
+    public void deleteEvent(Long eventId, Long organizerId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new DataNotFoundException("Event not found"));
+
+        if (!event.getOrganizerId().equals(organizerId)) {
+            throw new AccessDeniedException("Only event organizer can delete it");
+        }
+
+        List<Participation> participations = participationRepository.findByEventId(eventId);
+
+        for (Participation participation : participations) {
+            if (participation.getQrCodeUid() != null) {
+                fileService.deleteFile(participation.getQrCodeUid());
+            }
+            participationRepository.delete(participation);
+        }
+
+        if (event.getImageUid() != null) {
+            fileService.deleteFile(event.getImageUid());
+        }
+
+        eventRepository.delete(event);
     }
 }
