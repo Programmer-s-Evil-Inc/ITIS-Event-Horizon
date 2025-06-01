@@ -8,14 +8,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Иконки Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    ></script>
     <style>
         /* Дополнительные стили */
-        a {
-            text-decoration: none;
-        }
-        main {
-            margin: 0 auto;
-        }
         body {
             background: #BADDFF;
         }
@@ -73,7 +70,7 @@
         .event-creator-form-group {
             margin: 5px 0 5px 10px; 
         }
-        .form-control {
+        .form-control, .form-select {
             width: 95%;
             align-items: center;
         }
@@ -119,13 +116,12 @@
                 <i class="fas fa-plus-circle"></i>
             </a>
 
+
             <!-- Поисковая строка -->
             <form class="search-form">
                 <div class="input-group">
-                    <input class="form-control rounded-start-3" type="search" placeholder="Поиск...">
-                    <button class="btn btn-outline-light" type="submit">
-                        <i class="fas fa-search"></i> Найти
-                    </button>
+                    <input id="search-input" class="form-control rounded-start-3"
+                           type="search" placeholder="Поиск...">
                 </div>
             </form>
         </div>
@@ -178,7 +174,7 @@
     </div>
 </footer>
 
-<!-- Модальное окно -->
+<!-- Модальное окно создания события-->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -187,41 +183,58 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="container">
-            <form>
+            <form id="data-form">
                 <div class="row">
-                <div class="form-group event-creator-form-group">
-                    <label>Название мероприятия</label>
-                    <input type="text" class="form-control" placeholder="Введите название">
-                </div>
-                <div class="form-group event-creator-form-group">
-                    <label>Описание</label>
-                    <input type="text" class="form-control" placeholder="Введите описание">
-                </div>
-                <div class="form-group event-creator-form-group">
-                    <label>Дата проведения</label>
-                    <input type="date" class="form-control" placeholder="Введите название">
-                </div>
-                <div class="form-group event-creator-form-group">
-                    <label>Место проведения</label>
-                    <input type="text" class="form-control" placeholder="Введите название">
-                </div>
+                    <div class="form-group event-creator-form-group">
+                        <label>Название мероприятия</label>
+                        <input type="text" class="form-control" id="event-name" placeholder="Введите название">
+                    </div>
+                    <div class="form-group event-creator-form-group">
+                        <label>Описание</label>
+                        <input type="text" id="event-description" class="form-control" placeholder="Введите описание">
+                    </div>
+                    <div class="form-group event-creator-form-group">
+                        <label>Дата проведения</label>
+                        <input type="datetime-local" id="event-date" class="form-control" placeholder="Введите дату и время">
+                    </div>
+                    <div class="form-group event-creator-form-group">
+                        <label>Категория</label>
+                        <div>
+                            <select class="form-select" id="event-category">
+                                <option value="SPORT">Спорт</option>
+                                <option value="SCIENCE">Наука</option>
+                                <option value="CULTURE">Культура</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group event-creator-form-group">
+                        <label>Место проведения</label>
+                        <input type="text" id="event-location" class="form-control" placeholder="Введите название">
+                    </div>
+                    <div class="form-group event-creator-form-group">
+                        <label>Количество участников</label>
+                        <input type="number" id="event-participant-limit" class="form-control" placeholder="Введите количество участников">
+                    </div>
                     <div class="form-group event-creator-form-group">
                         <label>Добавьте изображение</label>
-                        <input type="file" class="form-control" accept="image/*" placeholder="Добавить изображение">
+                        <input type="file" class="form-control" id="event-image" accept="image/*" placeholder="Добавить изображение">
                     </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Создать</button>
                 </div>
             </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <button type="button" class="btn btn-primary">Создать</button>
-            </div>
+
         </div>
     </div>
 </div>
 
 <!-- Bootstrap 5 JS Bundle with Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/scripts/getEvents.js"></script>
+
+<script src="/scripts/getEvents.js"></script>
+<script src="/scripts/createEvent.js"></script>
 </body>
 </html>
