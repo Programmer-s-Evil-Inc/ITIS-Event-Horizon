@@ -14,15 +14,15 @@ import java.io.InputStream;
 @Slf4j
 public class FileServiceMinioImpl implements FileService {
 
-    private final String minioEndpoint;
+    private final String minioExternalEndpoint;
     private final MinioClient minioClient;
     private final String bucketName;
 
-    public FileServiceMinioImpl(@Value("${minio.bucket}") String bucketName, @Value("${minio.endpoint}") String minioEndpoint, MinioClient minioClient) {
-        this.minioEndpoint = minioEndpoint;
+    public FileServiceMinioImpl(@Value("${minio.bucket}") String bucketName, @Value("${minio.external.endpoint}") String minioExternalEndpoint, MinioClient minioClient) {
+        this.minioExternalEndpoint = minioExternalEndpoint;
         this.minioClient = minioClient;
         this.bucketName = bucketName;
-        log.info("Initializing Minio storage [Bucket: {}, Endpoint: {}]", this.bucketName, this.minioEndpoint);
+        log.info("Initializing Minio storage [Bucket: {}, Endpoint: {}]", this.bucketName, this.minioExternalEndpoint);
         initializeBucket();
     }
 
@@ -75,7 +75,7 @@ public class FileServiceMinioImpl implements FileService {
 
     @Override
     public String getBaseUrl() {
-        return minioEndpoint + "/" + bucketName + "/";
+        return minioExternalEndpoint + "/" + bucketName + "/";
     }
 
     @Override
@@ -94,7 +94,7 @@ public class FileServiceMinioImpl implements FileService {
     private String getFileUrl(String objectName) {
         return String.format(
                 "%s/%s/%s",
-                minioEndpoint,
+                minioExternalEndpoint,
                 bucketName,
                 objectName
         );

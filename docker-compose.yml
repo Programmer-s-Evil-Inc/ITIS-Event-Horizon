@@ -10,6 +10,8 @@ services:
     environment:
       - DB_HOST=event-horizon-db
       - DB_PORT=5432
+      - SERVER_IP=89.169.137.16
+      - SERVER_SCHEMA=http
       - MINIO_HOST=minio
       - MINIO_PORT=9000
       - MINIO_ACCESS_KEY=minio_user
@@ -45,6 +47,8 @@ services:
     environment:
       MINIO_ROOT_USER: minio_user
       MINIO_ROOT_PASSWORD: minio_qwerty
+      MINIO_PROMETHEUS_AUTH_TYPE: public
+      MINIO_SITE_REGION: eu-west-1
     volumes:
       - minio_data:/data
     networks:

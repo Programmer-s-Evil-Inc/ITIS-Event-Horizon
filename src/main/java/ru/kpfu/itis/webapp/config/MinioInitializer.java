@@ -6,6 +6,7 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -27,6 +28,8 @@ import java.util.List;
 public class MinioInitializer implements ApplicationRunner {
     private final FileService fileService;
     private final ParticipationRepository participationRepository;
+    @Value("${server.url}")
+    private String serverBaseUrl;
 
     @Override
     public void run(ApplicationArguments args) {
@@ -63,7 +66,7 @@ public class MinioInitializer implements ApplicationRunner {
             String objectName = "subscriptions/qrcodes/" + participation.getId() + ".png";
             if (!fileService.fileExists(objectName)) {
                 try {
-                    String validationUrl = "http://localhost:8080/api/events/subscriptions/validate?subscriptionId=" + participation.getId();
+                    String validationUrl = serverBaseUrl + "/api/events/subscriptions/validate?subscriptionId=" + participation.getId();
                     byte[] qrCodeBytes = generateQRCode(validationUrl);
 
                     MultipartFile qrCodeFile = new ByteArrayMultipartFile(qrCodeBytes, objectName);
