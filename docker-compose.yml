@@ -1,5 +1,33 @@
 services:
 
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/nginx/certs
+      - /etc/nginx/vhost.d
+      - /usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - event-horizon
+    restart: unless-stopped
+
+  nginx-letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: nginx-letsencrypt
+    environment:
+      - DEFAULT_EMAIL=peterkurkin1@gmail.com
+    volumes_from:
+      - nginx-proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - event-horizon
+    restart: unless-stopped
+
   app:
     build:
       context: .
@@ -10,7 +38,9 @@ services:
     environment:
       - DB_HOST=event-horizon-db
       - DB_PORT=5432
-      - SERVER_IP=89.169.137.16
+      - SERVER_URL=https://event.bikini-bottom.com
+      - MINIO_EXTERNAL_ENDPOINT=http://event.bikini-bottom.com:9000
+      - MINIO_INTERNAL_ENDPOINT=http://minio:9000
       - SERVER_SCHEMA=http
       - MINIO_HOST=minio
       - MINIO_PORT=9000
