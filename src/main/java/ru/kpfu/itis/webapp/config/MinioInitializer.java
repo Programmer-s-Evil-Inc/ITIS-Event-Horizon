@@ -28,7 +28,7 @@ import java.util.List;
 public class MinioInitializer implements ApplicationRunner {
     private final FileService fileService;
     private final ParticipationRepository participationRepository;
-    @Value("${server.url}")
+    @Value("${minio.external.endpoint}")
     private String serverBaseUrl;
 
     @Override

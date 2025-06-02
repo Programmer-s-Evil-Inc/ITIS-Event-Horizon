@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MinioConfig {
 
-    @Value("${minio.internal.endpoint}")
+    @Value("${minio.external.endpoint}")
     private String endpoint;
 
     @Value("${minio.accessKey}")

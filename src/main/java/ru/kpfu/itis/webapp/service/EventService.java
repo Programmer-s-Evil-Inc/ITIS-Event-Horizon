@@ -38,7 +38,7 @@ public class EventService {
     private final ParticipationRepository participationRepository;
     private final AccountRepository accountRepository;
     private final FileService fileService;
-    @Value("${server.url}")
+    @Value("${minio.external.endpoint}")
     private String serverBaseUrl;
 
     public List<EventShortDto> getAllShortEvents(EventFilter filter) {
