@@ -61,6 +61,8 @@ jobs:
       - name: Backup current images
         run: |
           ssh $SSH_OPTIONS ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            mkdir -p ${{ secrets.BACKUP_PATH }}
+            cp ${{ secrets.DEPLOY_PATH }}/docker-compose.yml ${{ secrets.BACKUP_PATH }}/docker-compose.yml.bak
             for svc in $(docker compose -f ${{ secrets.DEPLOY_PATH }}/docker-compose.yml config --services); do
               img=$(docker compose -f ${{ secrets.DEPLOY_PATH }}/docker-compose.yml ps -q $svc | xargs docker inspect --format='{{.Config.Image}}')
               echo "$img" > "${{ secrets.BACKUP_PATH }}/${svc}_image_backup"
@@ -103,7 +105,7 @@ jobs:
           attempt() {
             echo "Sleeping $1s..."
             sleep $1
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://${{ secrets.SSH_HOST }})
+            STATUS=$(curl -k -s -o /dev/null -w "%{http_code}" https://${{ secrets.SSH_HOST }})
             CURL_EXIT=$?
             echo "Attempt after $1s: STATUS=$STATUS, CURL_EXIT=$CURL_EXIT"
             if [ "$CURL_EXIT" -eq 0 ] && [ "$STATUS" -eq 200 ]; then
