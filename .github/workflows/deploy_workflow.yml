@@ -144,12 +144,13 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Retry health check and rollback if still failing
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://${{ secrets.SSH_HOST }})
+          STATUS=$(curl -k -s -o /dev/null -w "%{http_code}" https://${{ secrets.SSH_HOST }})
           if [ "$STATUS" -ne 200 ]; then
             echo "Rollback initiated. Status: $STATUS"
             ssh $SSH_OPTIONS ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
               cd ${{ secrets.DEPLOY_PATH }}
               docker compose down || true
+              cp ${{ secrets.BACKUP_PATH }}/docker-compose.yml.bak ./docker-compose.yml || true
               for f in ${{ secrets.BACKUP_PATH }}/*_image_backup; do
                 svc=$(basename $f | sed 's/.image_backup//')
                 img=$(cat $f)
