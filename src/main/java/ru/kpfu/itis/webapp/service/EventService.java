@@ -100,7 +100,7 @@ public class EventService {
     }
 
     @Transactional
-    public void createEvent(EventCreationRequest request, Long organizerId) {
+    public void createEvent(EventCreationRequest request, Long organizerId, String imageUid) {
         if (eventRepository.countByOrganizerId(organizerId) >= 10) {
             throw new IllegalStateException("Event limit reached");
         }
@@ -113,14 +113,14 @@ public class EventService {
                 .participantLimit(request.getParticipantLimit())
                 .organizerId(organizerId)
                 .category(request.getCategory())
-                .imageUid(request.getImageUuid())
+                .imageUid(imageUid)
                 .build();
 
         eventRepository.save(event);
     }
 
     @Transactional
-    public void subscribeToEvent(Long userId, Long eventId) {
+    public String subscribeToEvent(Long userId, Long eventId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new DataNotFoundException("Event not found"));
 
@@ -141,11 +141,13 @@ public class EventService {
         Participation participation = new Participation();
         participation.setUser(user);
         participation.setEvent(event);
-
         participationRepository.save(participation);
+
         String qrCodeUid = generateAndUploadQrCode(participation.getId());
         participation.setQrCodeUid(qrCodeUid);
         participationRepository.save(participation);
+
+        return fileService.getBaseUrl() + qrCodeUid;
     }
 
     private String generateAndUploadQrCode(Long subscriptionId) {
