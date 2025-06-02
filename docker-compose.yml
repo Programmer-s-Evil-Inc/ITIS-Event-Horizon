@@ -77,6 +77,7 @@ services:
       - "9000"
       - "9001"
     environment:
+      - VIRTUAL_PORT=9000
       - VIRTUAL_HOST=minio.bikini-bottom.com
       - LETSENCRYPT_HOST=minio.bikini-bottom.com
       - LETSENCRYPT_EMAIL=peterkurkin1@gmail.com
