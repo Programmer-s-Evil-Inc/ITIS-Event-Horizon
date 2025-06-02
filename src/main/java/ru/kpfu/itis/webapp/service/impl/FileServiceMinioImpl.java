@@ -92,12 +92,7 @@ public class FileServiceMinioImpl implements FileService {
     }
 
     private String getFileUrl(String objectName) {
-        return String.format(
-                "%s/%s/%s",
-                minioExternalEndpoint,
-                bucketName,
-                objectName
-        );
+        return getBaseUrl() + objectName;
     }
 
     private String getPublicPolicy() {

@@ -38,7 +38,7 @@ public class EventService {
     private final ParticipationRepository participationRepository;
     private final AccountRepository accountRepository;
     private final FileService fileService;
-    @Value("${minio.external.endpoint}")
+    @Value("${server.url}")
     private String serverBaseUrl;
 
     public List<EventShortDto> getAllShortEvents(EventFilter filter) {
@@ -105,7 +105,7 @@ public class EventService {
             throw new IllegalStateException("Event limit reached");
         }
 
-        if (!fileService.fileExists("/events/images/" + request.getImageUuid())) {
+        if (!fileService.fileExists("events/images/" + request.getImageUuid())) {
             throw new ServiceException("Image not found: " + request.getImageUuid());
         }
 
