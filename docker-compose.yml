@@ -33,8 +33,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: horizon-app
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     environment:
       - DB_HOST=event-horizon-db
       - DB_PORT=5432
@@ -42,6 +42,9 @@ services:
       - MINIO_EXTERNAL_ENDPOINT=http://event.bikini-bottom.com:9000
       - MINIO_INTERNAL_ENDPOINT=http://minio:9000
       - SERVER_SCHEMA=http
+      - VIRTUAL_HOST=event.bikini-bottom.com
+      - LETSENCRYPT_HOST=event.bikini-bottom.com
+      - LETSENCRYPT_EMAIL=peterkurkin1@gmail.com
       - MINIO_HOST=minio
       - MINIO_PORT=9000
       - MINIO_ACCESS_KEY=minio_user
@@ -51,6 +54,7 @@ services:
       - minio
     networks:
       - event-horizon
+    restart: unless-stopped
 
   postgres:
     image: postgres:latest
