@@ -79,7 +79,7 @@ services:
     environment:
       - VIRTUAL_HOST=minio.bikini-bottom.com,console.minio.bikini-bottom.com
       - VIRTUAL_PORT=9000
-      - VIRTUAL_PORT_console.minio.bikini-bottom.com=9001
+      - VIRTUAL_PORT_CONSOLE_MINIO_BIKINI_BOTTOM_COM=9001
       - LETSENCRYPT_HOST=minio.bikini-bottom.com,console.minio.bikini-bottom.com
       - LETSENCRYPT_EMAIL=peterkurkin1@gmail.com
       - MINIO_ROOT_USER=minio_user
