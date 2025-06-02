@@ -1,5 +1,6 @@
-services:
+version: '3.8'
 
+services:
   nginx-proxy:
     image: jwilder/nginx-proxy
     container_name: nginx-proxy
@@ -38,17 +39,13 @@ services:
     environment:
       - DB_HOST=event-horizon-db
       - DB_PORT=5432
-      - SERVER_URL=https://event.bikini-bottom.com
-      - MINIO_EXTERNAL_ENDPOINT=https://event.bikini-bottom.com:9000
-      - MINIO_INTERNAL_ENDPOINT=http://minio:9000
-      - SERVER_SCHEMA=http
       - VIRTUAL_HOST=event.bikini-bottom.com
       - LETSENCRYPT_HOST=event.bikini-bottom.com
       - LETSENCRYPT_EMAIL=peterkurkin1@gmail.com
-      - MINIO_HOST=minio
-      - MINIO_PORT=9000
       - MINIO_ACCESS_KEY=minio_user
       - MINIO_SECRET_KEY=minio_qwerty
+      - MINIO_HOST=minio
+      - MINIO_PORT=9000
     depends_on:
       - postgres
       - minio
@@ -81,8 +78,6 @@ services:
     environment:
       MINIO_ROOT_USER: minio_user
       MINIO_ROOT_PASSWORD: minio_qwerty
-      MINIO_PROMETHEUS_AUTH_TYPE: public
-      MINIO_SITE_REGION: eu-west-1
     volumes:
       - minio_data:/data
     networks:
