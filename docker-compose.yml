@@ -44,6 +44,8 @@ services:
       - LETSENCRYPT_EMAIL=peterkurkin1@gmail.com
       - MINIO_ACCESS_KEY=minio_user
       - MINIO_SECRET_KEY=minio_qwerty
+      - MINIO_HOST=minio
+      - MINIO_PORT=9000
     depends_on:
       - postgres
       - minio
