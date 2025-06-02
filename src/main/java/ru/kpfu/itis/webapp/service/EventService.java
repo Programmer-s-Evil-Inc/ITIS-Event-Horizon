@@ -105,10 +105,6 @@ public class EventService {
             throw new IllegalStateException("Event limit reached");
         }
 
-        if (!fileService.fileExists("events/images/" + request.getImageUuid())) {
-            throw new ServiceException("Image not found: " + request.getImageUuid());
-        }
-
         Event event = Event.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
