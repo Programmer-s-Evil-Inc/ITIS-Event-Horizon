@@ -43,7 +43,7 @@ services:
       - VIRTUAL_HOST=event.bikini-bottom.com
       - LETSENCRYPT_HOST=event.bikini-bottom.com
       - LETSENCRYPT_EMAIL=peterkurkin1@gmail.com
-      - MINIO_EXTERNAL_ENDPOINT=http://event.bikini-bottom.com:9000
+      - MINIO_EXTERNAL_ENDPOINT=https://minio.bikini-bottom.com:9000
       - MINIO_INTERNAL_ENDPOINT=http://minio:9000
       - MINIO_ACCESS_KEY=minio_user
       - MINIO_SECRET_KEY=minio_qwerty
@@ -77,8 +77,11 @@ services:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: minio_user
-      MINIO_ROOT_PASSWORD: minio_qwerty
+      - VIRTUAL_HOST=minio.bikini-bottom.com
+      - LETSENCRYPT_HOST=minio.bikini-bottom.com
+      - LETSENCRYPT_EMAIL=peterkurkin1@gmail.com
+      - MINIO_ROOT_USER=minio_user
+      - MINIO_ROOT_PASSWORD=minio_qwerty
     volumes:
       - minio_data:/data
     networks:
