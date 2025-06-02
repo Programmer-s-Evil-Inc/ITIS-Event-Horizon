@@ -39,11 +39,11 @@ services:
     environment:
       - DB_HOST=event-horizon-db
       - DB_PORT=5432
-      - MINIO_HOST=minio
-      - MINIO_PORT=9000
       - VIRTUAL_HOST=event.bikini-bottom.com
       - LETSENCRYPT_HOST=event.bikini-bottom.com
       - LETSENCRYPT_EMAIL=peterkurkin1@gmail.com
+      - MINIO_ACCESS_KEY=minio_user
+      - MINIO_SECRET_KEY=minio_qwerty
     depends_on:
       - postgres
       - minio
