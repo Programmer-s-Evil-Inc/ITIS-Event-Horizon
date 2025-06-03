@@ -40,13 +40,15 @@ services:
       - DB_HOST=event-horizon-db
       - DB_PORT=5432
       - SERVER_URL=https://event.bikini-bottom.com
-      - VIRTUAL_HOST=event.bikini-bottom.com
-      - LETSENCRYPT_HOST=event.bikini-bottom.com
-      - LETSENCRYPT_EMAIL=peterkurkin1@gmail.com
       - MINIO_EXTERNAL_ENDPOINT=https://minio.bikini-bottom.com
       - MINIO_INTERNAL_ENDPOINT=http://minio:9000
       - MINIO_ACCESS_KEY=minio_user
       - MINIO_SECRET_KEY=minio_qwerty
+      - VIRTUAL_HOST=minio.bikini-bottom.com,console.minio.bikini-bottom.com
+      - VIRTUAL_PORT=9000
+      - VIRTUAL_PORT_console.minio.bikini-bottom.com=9001
+      - LETSENCRYPT_HOST=minio.bikini-bottom.com,console.minio.bikini-bottom.com
+      - LETSENCRYPT_EMAIL=peterkurkin1@gmail.com
     depends_on:
       - postgres
       - minio
@@ -77,13 +79,12 @@ services:
       - "9000"
       - "9001"
     environment:
-      - VIRTUAL_HOST=minio.bikini-bottom.com,console.minio.bikini-bottom.com
-      - VIRTUAL_PORT=9000
-      - VIRTUAL_PORT_CONSOLE_MINIO_BIKINI_BOTTOM_COM=9001
-      - LETSENCRYPT_HOST=minio.bikini-bottom.com,console.minio.bikini-bottom.com
-      - LETSENCRYPT_EMAIL=peterkurkin1@gmail.com
       - MINIO_ROOT_USER=minio_user
       - MINIO_ROOT_PASSWORD=minio_qwerty
+      - VIRTUAL_HOST=minio.bikini-bottom.com
+      - VIRTUAL_PORT=9000
+      - LETSENCRYPT_HOST=minio.bikini-bottom.com
+      - LETSENCRYPT_EMAIL=peterkurkin1@gmail.com
     volumes:
       - minio_data:/data
     networks:
