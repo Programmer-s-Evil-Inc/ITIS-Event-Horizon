@@ -49,7 +49,7 @@ jobs:
             sudo mkdir -p ${{ secrets.BACKUP_PATH }}
             sudo chown -R $USER:$USER ${{ secrets.DEPLOY_PATH }}
             sudo chown -R $USER:$USER ${{ secrets.BACKUP_PATH }}
-          EOF99999999
+          EOF
 
   backup:
     runs-on: ubuntu-latest
