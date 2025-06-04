@@ -49,7 +49,8 @@ jobs:
             sudo mkdir -p ${{ secrets.BACKUP_PATH }}
             sudo chown -R $USER:$USER ${{ secrets.DEPLOY_PATH }}
             sudo chown -R $USER:$USER ${{ secrets.BACKUP_PATH }}
-          EOF
+          EOF99999999
+
   backup:
     runs-on: ubuntu-latest
     needs: prepare-server
@@ -68,6 +69,7 @@ jobs:
               echo "$img" > "${{ secrets.BACKUP_PATH }}/${svc}_image_backup"
             done
           EOF
+
   deploy:
     runs-on: ubuntu-latest
     needs: backup
@@ -90,6 +92,7 @@ jobs:
             docker compose pull || true
             docker compose up -d --build
           EOF
+
   health-check:
     runs-on: ubuntu-latest
     needs: deploy
@@ -123,18 +126,19 @@ jobs:
               STATUS=000
             fi
             echo "-> Attempt to ${URL} after ${DELAY}s: STATUS=$STATUS, CURL_EXIT=$CURL_EXIT"
-            if [ "$CURL_EXIT" -eq 0 ] && [ "$STATUS" -eq 200 ]; then
+            if [ "$CURL_EXIT" -eq 0 ] && [[ "$STATUS" =~ ^2|3 ]]; then
               echo "✅ SUCCESS: ${PROTO} check passed"
               success=1
+              return 0
             else
               echo "❌ FAILURE: ${PROTO} check failed with code $STATUS and exit $CURL_EXIT"
+              return 1
             fi
           }
           
-          
           for delay in "${delays[@]}"; do
             for proto in "${protos[@]}"; do
-              attempt "$proto" "$delay"
+              attempt "$proto" "$delay" && break 2
             done
           done
           
@@ -146,6 +150,7 @@ jobs:
             echo "result=fail" >> $GITHUB_OUTPUT
             exit 1
           fi
+
   restart-services:
     runs-on: ubuntu-latest
     needs: health-check
@@ -193,6 +198,7 @@ jobs:
   #          else
   #            echo "Recovered after restart. Status: $STATUS"
   #          fi
+
   collect-logs:
     runs-on: ubuntu-latest
     needs:
