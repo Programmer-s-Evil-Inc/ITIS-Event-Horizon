@@ -116,7 +116,7 @@ jobs:
             echo ""
             echo "==> Sleeping ${DELAY}s before checking ${URL}"
             sleep $DELAY
-            if STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL"); then
+            if STATUS=$(curl -L -s -o /dev/null -w "%{http_code}" "$URL"); then
               CURL_EXIT=0
             else
               CURL_EXIT=$?
