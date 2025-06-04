@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+
   nginx-proxy:
     image: jwilder/nginx-proxy
     container_name: nginx-proxy
@@ -8,19 +9,21 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - /etc/nginx/certs
-      - /etc/nginx/vhost.d
-      - /usr/share/nginx/html
+      - ./nginx/certs:/etc/nginx/certs
+      - ./nginx/vhost.d:/etc/nginx/vhost.d
+      - ./nginx/html:/usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
     networks:
       - event-horizon
     restart: unless-stopped
 
   nginx-letsencrypt:
-    image: jrcs/letsencrypt-nginx-proxy-companion
+    image: nginxproxy/acme-companion
     container_name: nginx-letsencrypt
     environment:
       - DEFAULT_EMAIL=peterkurkin1@gmail.com
+#     Обязательно удалить, это для тестов
+#      - ACME_CA_URI=https://acme-staging-v02.api.letsencrypt.org/directory
     volumes_from:
       - nginx-proxy
     volumes:
@@ -75,12 +78,12 @@ services:
     command: server /data --console-address ":9001"
     expose:
       - "9000"
-      - "9001"
+    ports:
+      - "9001:9001"
     environment:
-      - VIRTUAL_HOST=minio.bikini-bottom.com,console.minio.bikini-bottom.com
+      - VIRTUAL_HOST=minio.bikini-bottom.com
       - VIRTUAL_PORT=9000
-      - VIRTUAL_PORT_CONSOLE_MINIO_BIKINI_BOTTOM_COM=9001
-      - LETSENCRYPT_HOST=minio.bikini-bottom.com,console.minio.bikini-bottom.com
+      - LETSENCRYPT_HOST=minio.bikini-bottom.com
       - LETSENCRYPT_EMAIL=peterkurkin1@gmail.com
       - MINIO_ROOT_USER=minio_user
       - MINIO_ROOT_PASSWORD=minio_qwerty

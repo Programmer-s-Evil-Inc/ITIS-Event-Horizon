@@ -50,6 +50,7 @@ jobs:
             sudo chown -R $USER:$USER ${{ secrets.DEPLOY_PATH }}
             sudo chown -R $USER:$USER ${{ secrets.BACKUP_PATH }}
           EOF
+
   backup:
     runs-on: ubuntu-latest
     needs: prepare-server
@@ -68,6 +69,7 @@ jobs:
               echo "$img" > "${{ secrets.BACKUP_PATH }}/${svc}_image_backup"
             done
           EOF
+
   deploy:
     runs-on: ubuntu-latest
     needs: backup
@@ -80,7 +82,8 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Copy files to remote server
         run: |
-          rsync -az -e "ssh $SSH_OPTIONS" --exclude='.git' ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}
+          rsync -az -e "ssh $SSH_OPTIONS" --exclude='.git' --exclude='nginx/certs' --exclude='nginx/html' ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}
+
       - name: Deploy application
         run: |
           ssh $SSH_OPTIONS ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
@@ -89,6 +92,7 @@ jobs:
             docker compose pull || true
             docker compose up -d --build
           EOF
+
   health-check:
     runs-on: ubuntu-latest
     needs: deploy
@@ -102,24 +106,51 @@ jobs:
       - id: check
         name: Health check
         run: |
+          echo "::group::Health Check Attempts"
+          
+          success=0
+          delays=(5 15 30)
+          protos=(http https)
+          
           attempt() {
-            echo "Sleeping $1s..."
-            sleep $1
-            STATUS=$(curl -k -s -o /dev/null -w "%{http_code}" https://${{ secrets.SSH_HOST }})
-            CURL_EXIT=$?
-            echo "Attempt after $1s: STATUS=$STATUS, CURL_EXIT=$CURL_EXIT"
-            if [ "$CURL_EXIT" -eq 0 ] && [ "$STATUS" -eq 200 ]; then
+            PROTO=$1
+            DELAY=$2
+            URL="${PROTO}://${{ secrets.SSH_HOST }}"
+            echo ""
+            echo "==> Sleeping ${DELAY}s before checking ${URL}"
+            sleep $DELAY
+            if STATUS=$(curl -L -s -o /dev/null -w "%{http_code}" "$URL"); then
+              CURL_EXIT=0
+            else
+              CURL_EXIT=$?
+              STATUS=000
+            fi
+            echo "-> Attempt to ${URL} after ${DELAY}s: STATUS=$STATUS, CURL_EXIT=$CURL_EXIT"
+            if [ "$CURL_EXIT" -eq 0 ] && [[ "$STATUS" =~ ^2|3 ]]; then
+              echo "✅ SUCCESS: ${PROTO} check passed"
+              success=1
               return 0
             else
+              echo "❌ FAILURE: ${PROTO} check failed with code $STATUS and exit $CURL_EXIT"
               return 1
             fi
           }
           
-          if attempt 5 || attempt 15 || attempt 30; then
+          for delay in "${delays[@]}"; do
+            for proto in "${protos[@]}"; do
+              attempt "$proto" "$delay" && break 2
+            done
+          done
+          
+          echo "::endgroup::"
+          
+          if [ "$success" -eq 1 ]; then
             echo "result=pass" >> $GITHUB_OUTPUT
           else
             echo "result=fail" >> $GITHUB_OUTPUT
+            exit 1
           fi
+
   restart-services:
     runs-on: ubuntu-latest
     needs: health-check
@@ -136,43 +167,44 @@ jobs:
             docker compose restart
           EOF
           sleep 10
-  rollback:
-    runs-on: ubuntu-latest
-    needs: restart-services
-    steps:
-      - name: Set up SSH key
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      - name: Retry health check and rollback if still failing
-        run: |
-          STATUS=$(curl -k -s -o /dev/null -w "%{http_code}" https://${{ secrets.SSH_HOST }})
-          if [ "$STATUS" -ne 200 ]; then
-            echo "Rollback initiated. Status: $STATUS"
-            ssh $SSH_OPTIONS ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-              cd ${{ secrets.DEPLOY_PATH }}
-              docker compose down || true
-              cp ${{ secrets.BACKUP_PATH }}/docker-compose.yml.bak ./docker-compose.yml || true
-              for f in ${{ secrets.BACKUP_PATH }}/*_image_backup; do
-                svc=$(basename $f | sed 's/.image_backup//')
-                img=$(cat $f)
-                if [ -n "$img" ]; then
-                  docker pull $img || true
-                  docker tag $img $svc:latest || true
-                fi
-              done
-              docker compose up -d
-            EOF
-            exit 1
-          else
-            echo "Recovered after restart. Status: $STATUS"
-          fi
+  #  rollback:
+  #    runs-on: ubuntu-latest
+  #    needs: restart-services
+  #    steps:
+  #      - name: Set up SSH key
+  #        uses: webfactory/ssh-agent@v0.9.0
+  #        with:
+  #          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+  #      - name: Retry health check and rollback if still failing
+  #        run: |
+  #          STATUS=$(curl -k -s -o /dev/null -w "%{http_code}" https://${{ secrets.SSH_HOST }})
+  #          if [ "$STATUS" -ne 200 ]; then
+  #            echo "Rollback initiated. Status: $STATUS"
+  #            ssh $SSH_OPTIONS ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+  #              cd ${{ secrets.DEPLOY_PATH }}
+  #              docker compose down || true
+  #              cp ${{ secrets.BACKUP_PATH }}/docker-compose.yml.bak ./docker-compose.yml || true
+  #              for f in ${{ secrets.BACKUP_PATH }}/*_image_backup; do
+  #                svc=$(basename $f | sed 's/.image_backup//')
+  #                img=$(cat $f)
+  #                if [ -n "$img" ]; then
+  #                  docker pull $img || true
+  #                  docker tag $img $svc:latest || true
+  #                fi
+  #              done
+  #              docker compose up -d
+  #            EOF
+  #            exit 1
+  #          else
+  #            echo "Recovered after restart. Status: $STATUS"
+  #          fi
+
   collect-logs:
     runs-on: ubuntu-latest
     needs:
       - health-check
       - restart-services
-      - rollback
+    #      - rollback
     if: always()
     steps:
       - name: Set up SSH key
