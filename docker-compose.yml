@@ -22,7 +22,7 @@ services:
     environment:
       - DEFAULT_EMAIL=peterkurkin1@gmail.com
 #     Обязательно удалить, это для тестов
-      - ACME_CA_URI=https://acme-staging-v02.api.letsencrypt.org/directory
+#      - ACME_CA_URI=https://acme-staging-v02.api.letsencrypt.org/directory
     volumes_from:
       - nginx-proxy
     volumes:
