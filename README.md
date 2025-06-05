@@ -1,24 +1,54 @@
-# ITIS-Event-Horizon
+# 📚ITIS-Event-Horizon
 
-Создание централизованной платформы для студентов и организаторов ИТИС КФУ, позволяющей публиковать, просматривать и управлять информацией о внеучебных мероприятиях.
+Creation of a centralized platform for students and organizers of ITIS KFU to publish, view, and manage information about extracurricular events.  
 
-**Участники проекта:**  
-Оконешников Владимир 11-407 - Фронт (верстальщик)  
-Андреев Сергей, 11-405 - Бэкенд  
-Гафиятуллин Айзат, 11-405 - Бэкенд  
-Биктеев Тимур, 11-405 - Фронт (js)  
+## ⚙️ Tech Stack
+**Backend**:
+- Java 23
+- Spring Boot 3
+- Spring Security
+- PostgreSQL
+- MinIO (объектное хранилище)
+- Docker
 
-## Локальная разработка
+**Frontend**:
+- JavaScript
+- HTML/CSS
+- Bootstrap
 
-1) Для запуска локальных сервисов запускаем `docker-compose.yaml`.  
-(Ни в коем случае не запускать `docker-compose.prod.yaml` локально)
+## ✅ Functionality
+.......
+---------------------------------------------
 
-2) Для первого запуска обязательно в `application.properties`:
-   - `spring.jpa.hibernate.ddl-auto=update` - автоматически обновляет схему БД
-   - `spring.sql.init.mode=always` - инициализирует БД скриптами
-   - `minio.init.enabled=true` - загружает локальные изображения в MinIO
+## 🛠️ Local Development
 
-   При последующих запусках:
-   - Оставьте `spring.jpa.hibernate.ddl-auto=update` (или `create-drop` полностью пересоздает схему (удаляет старые данные))
-   - Измените `spring.sql.init.mode на never`
-   - Отключите `minio.init.enabled=false`
+### Prerequisites
+- Docker
+- Java 23
+
+### First Launch
+1) Start `docker-compose.yaml`:
+2) Configure `application.properties`:
+```properties
+spring.jpa.hibernate.ddl-auto=update - automatically updates the database schema
+spring.sql.init.mode=always - initializes the database with scripts
+minio.init.enabled=true - loads local images into MinIO
+```
+3) Launch the backend application.
+
+### Subsequent Launches
+Update application.properties:
+```properties
+spring.jpa.hibernate.ddl-auto=update (or `create-drop` completely recreates the schema (deletes old data))
+spring.sql.init.mode=never
+minio.init.enabled=false
+```
+
+## 📖 Documentation
+- [Swagger UI](http://localhost:8080/swagger-ui/index.html) (after app launch)
+
+## 👥Development Team  
+- Okoneshnikov Vladimir, frontend developer  
+- Bikteev Timur, frontend developer  
+- Gafiyatullin Aizat, backend developer  
+- Andreev Sergey, backend developer  
