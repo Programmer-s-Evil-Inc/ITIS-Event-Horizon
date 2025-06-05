@@ -10,7 +10,6 @@ concurrency:
   group: deploy-${{ github.workflow }}-${{ github.ref_name }}
   cancel-in-progress: false
 
-
 env:
   SSH_OPTIONS: -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
 
