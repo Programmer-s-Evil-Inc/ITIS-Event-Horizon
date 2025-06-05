@@ -4,7 +4,7 @@ const eventsContainer = document.getElementById('events-container');
 let searchTimeout = null;
 const SEARCH_DELAY = 300;
 
-// Функция загрузки и отображения событий (асинхронно, шоб страница не висла)
+// Функция загрузки и отображения событий
 async function loadEvents(searchQuery = "") {
     try {
         const url = new URL('/api/events', window.location.origin);
@@ -18,10 +18,7 @@ async function loadEvents(searchQuery = "") {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
-        // Получили ответ от бэка
         const events = await response.json();
-
-        // Отрисовываем
         renderEvents(events);
     } catch (error) {
         handleError(error);
@@ -36,22 +33,27 @@ function renderEvents(events) {
                 ...event,
                 id: BigInt(event.id).toString()
             });
-            return card.outerHTML;
+
+            // Обертываем карточку в ссылку с модальными атрибутами
+            const linkWrapper = document.createElement('a');
+            linkWrapper.href = '#';
+            linkWrapper.dataset.bsToggle = 'modal';
+            linkWrapper.dataset.bsTarget = '#full-modal-event';
+
+            linkWrapper.appendChild(card);
+            return linkWrapper.outerHTML;
         })
         .join('');
 }
 
-// Рендеринг одного события
+// Рендеринг одной карточки события (без изменений)
 function createEventCard(event) {
     const card = document.createElement('div');
     card.className = 'event-card card mb-4 rounded-5';
 
-    const link = document.createElement('a');
-
     const cardBody = document.createElement('div');
     cardBody.className = 'card-body rounded-5 position-relative';
 
-    // Фоновое изображение через imageUuid
     cardBody.style.background = `
         linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
         ${event.image_url
@@ -61,37 +63,28 @@ function createEventCard(event) {
     `;
     cardBody.style.height = '50vh';
 
-    // Заголовок
     const title = document.createElement('h3');
     title.className = 'card-title';
     title.textContent = event.title;
 
-    // Дата
     const date = document.createElement('p');
     date.className = 'mb-1';
     date.innerHTML = `<i class="far fa-calendar-alt me-2"></i>${formatDate(event.date)}`;
 
-    // Описание
     const description = document.createElement('p');
     description.className = 'card-text';
     description.textContent = event.description;
 
-    // Сборка элементов
-    cardBody.append(
-        title,
-        date,
-        description,
-    );
-
-    link.appendChild(cardBody);
-    card.appendChild(link);
+    cardBody.append(title, date, description);
+    card.appendChild(cardBody);
 
     return card;
 }
 
+// Остальные функции без изменений
 function handleError(error) {
     console.error('Ошибка:', error);
-    document.getElementById('events-container').innerHTML = `
+    eventsContainer.innerHTML = `
         <div class="alert alert-danger">
             Ошибка загрузки: ${error.message}
         </div>
@@ -109,20 +102,12 @@ function formatDate(dateString) {
     });
 }
 
-// Функция для обработки поискового ввода
 function handleSearchInput() {
     const searchTerm = document.getElementById('search-input').value.trim();
-
-    // Очищаем предыдущий таймер
     clearTimeout(searchTimeout);
-
-    // Устанавливаем новый таймер
-    searchTimeout = setTimeout(() => {
-        loadEvents(searchTerm);
-    }, SEARCH_DELAY);
+    searchTimeout = setTimeout(() => loadEvents(searchTerm), SEARCH_DELAY);
 }
 
-// Обработчик формы для поддержки отправки через Enter
 function handleFormSubmit(e) {
     e.preventDefault();
     clearTimeout(searchTimeout);
@@ -130,19 +115,13 @@ function handleFormSubmit(e) {
     loadEvents(searchTerm);
 }
 
-// Инициализация после загрузки DOM
+// Инициализация
 document.addEventListener('DOMContentLoaded', () => {
-    // Первоначальная загрузка событий
     loadEvents();
 
     const searchInput = document.getElementById('search-input');
     const searchForm = document.querySelector('.search-form');
 
-    // Добавляем обработчики поисковой формы
-    if (searchInput) {
-        searchInput.addEventListener('input', handleSearchInput);
-    }
-    if (searchForm) {
-        searchForm.addEventListener('submit', handleFormSubmit);
-    }
+    if (searchInput) searchInput.addEventListener('input', handleSearchInput);
+    if (searchForm) searchForm.addEventListener('submit', handleFormSubmit);
 });
