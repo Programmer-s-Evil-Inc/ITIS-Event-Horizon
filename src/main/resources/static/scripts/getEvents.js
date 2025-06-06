@@ -14,16 +14,77 @@ async function loadEvents(searchQuery = "") {
 
         const response = await fetch(url);
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.ok) {throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
         const events = await response.json();
         renderEvents(events);
+
+
     } catch (error) {
         handleError(error);
     }
 }
+
+async function loadEventDetails(eventId) {
+    try {
+        const response = await fetch('/api/events/' + eventId);
+
+        if (!response.ok) {
+            throw new Error('HTTP error! Status: ${response.status}');
+        }
+
+        const eventDetails = await response.json();
+        populateModal(eventDetails);
+    } catch (error) {
+        handleError(error);
+    }
+}
+
+
+function populateModal(eventDetails) {
+    //console.log(eventDetails);
+    const modalTitle = document.querySelector('#full-modal-event .modal-title');
+    const modalBody = document.querySelector('#full-modal-event .modal-body');
+
+
+    // Очистка содержимого модального окна перед заполнением новыми данными
+    modalTitle.textContent = eventDetails.title; // Заголовок события
+
+    // Создание элементов для тела модального окна
+    modalBody.innerHTML = ''; // Очищаем предыдущее содержимое
+
+    const description = document.createElement('p');
+    description.className = 'card-text';
+    description.textContent = eventDetails.description; // Описание события
+
+    const dateContainer = document.createElement('p');
+    dateContainer.className = 'mb-1';
+    dateContainer.innerHTML = `<i class="far fa-calendar-alt me-2"></i>${formatDate(eventDetails.date)}`; // Дата события
+
+    // Если есть изображение события, добавляем его в модальное окно
+    if (eventDetails.image_url) {
+        const image = document.createElement('img');
+        image.src = eventDetails.image_url;
+        image.alt = eventDetails.title;
+        image.className = 'img-fluid mb-3'; // Класс для адаптивного изображения
+        modalBody.appendChild(image);
+    }
+    const location = document.createElement('p');
+    location.className = 'card-text';
+    location.innerHTML = `<p>Адрес мероприятия: ${eventDetails.location}</p>`;
+
+    const participantLimit = document.createElement('p');
+    participantLimit.className = 'card-text';
+    participantLimit.innerHTML = `<p>Количество участников: ${eventDetails.participantLimit}</p>`;
+    // const . = document.createElement('p');
+    // const . = document.createElement('p');
+    // const . = document.createElement('p');
+
+    // Добавление элементов в тело модального окна
+    modalBody.append(dateContainer, description, location, participantLimit);
+}
+
 
 // Рендеринг всех событий
 function renderEvents(events) {
@@ -39,11 +100,25 @@ function renderEvents(events) {
             linkWrapper.href = '#';
             linkWrapper.dataset.bsToggle = 'modal';
             linkWrapper.dataset.bsTarget = '#full-modal-event';
+            linkWrapper.dataset.eventId = event.id;
 
             linkWrapper.appendChild(card);
             return linkWrapper.outerHTML;
         })
+
         .join('');
+
+    const modalLinks = eventsContainer.querySelectorAll('a[data-bs-toggle="modal"]');
+    modalLinks.forEach(link => {
+        link.addEventListener('click', async (e) => {
+            e.preventDefault(); // Отменяем стандартное поведение ссылки
+            const eventId = link.dataset.eventId; // Получаем как раз ID события
+
+            // Запрашиваем данные события по ID
+            await loadEventDetails(eventId);
+        });
+    });
+
 }
 
 // Рендеринг одной карточки события (без изменений)
