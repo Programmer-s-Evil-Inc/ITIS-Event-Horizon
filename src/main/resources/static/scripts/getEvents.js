@@ -43,7 +43,7 @@ async function loadEventDetails(eventId) {
 
 
 function populateModal(eventDetails) {
-    //console.log(eventDetails);
+    console.log(eventDetails);
     const modalTitle = document.querySelector('#full-modal-event .modal-title');
     const modalBody = document.querySelector('#full-modal-event .modal-body');
 
@@ -56,11 +56,11 @@ function populateModal(eventDetails) {
 
     const description = document.createElement('p');
     description.className = 'card-text';
-    description.textContent = eventDetails.description; // Описание события
+    description.innerHTML = `<h5>Описание:</h5> <p>${eventDetails.description}</p>`; // Описание события
 
     const dateContainer = document.createElement('p');
     dateContainer.className = 'mb-1';
-    dateContainer.innerHTML = `<i class="far fa-calendar-alt me-2"></i>${formatDate(eventDetails.date)}`; // Дата события
+    dateContainer.innerHTML = `<h5>Дата проведения</h5><p class="far fa-calendar-alt me-2"></p>${formatDate(eventDetails.date)}`; // Дата события
 
     // Если есть изображение события, добавляем его в модальное окно
     if (eventDetails.image_url) {
@@ -72,17 +72,26 @@ function populateModal(eventDetails) {
     }
     const location = document.createElement('p');
     location.className = 'card-text';
-    location.innerHTML = `<p>Адрес мероприятия: ${eventDetails.location}</p>`;
+    location.innerHTML = `<h5>Адрес мероприятия:</h5> <p>${eventDetails.location}</p>`;
 
     const participantLimit = document.createElement('p');
     participantLimit.className = 'card-text';
-    participantLimit.innerHTML = `<p>Количество участников: ${eventDetails.participantLimit}</p>`;
+    participantLimit.innerHTML = `<h5>Количество участников:</h5> <p>${eventDetails.participantLimit}</p>`;
     // const . = document.createElement('p');
     // const . = document.createElement('p');
-    // const . = document.createElement('p');
+    const category = document.createElement('p');
+    category.className = 'card-text';
+    if (eventDetails.category == "SPORT")
+    {
+        category.innerHTML = `<h5>Категория:</h5> <p>Спорт</p>`;
+    } else if (eventDetails.category == "SCIENCE") {
+        category.innerHTML = `<h5>Категория:</h5> <p>Наука</p>`;
+    } else {
+        category.innerHTML = `<h5>Категория:</h5> <p>Культура</p>`;
+    }
 
     // Добавление элементов в тело модального окна
-    modalBody.append(dateContainer, description, location, participantLimit);
+    modalBody.append(description, dateContainer, participantLimit, category, location);
 }
 
 
