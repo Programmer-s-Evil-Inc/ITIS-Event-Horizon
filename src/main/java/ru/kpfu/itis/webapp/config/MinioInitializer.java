@@ -36,8 +36,19 @@ public class MinioInitializer implements ApplicationRunner {
 
     private void uploadDefaultImages() {
         List.of(
-                "events/images/event1.jpg",
-                "events/images/event2.jpg",
+                "events/images/AI-image.png",
+                "events/images/football-match.png",
+                "events/images/gallery-of-art.jpg",
+                "events/images/lesson-of-biochem.jpg",
+                "events/images/programming-competition.jpg",
+                "events/images/marathon-for-running.jpg",
+                "events/images/books-sales.jpg",
+                "events/images/robototehnika.jpg",
+                "events/images/BASKETBALL!!.jpg",
+                "events/images/opera-Onegin.jpg",
+                "events/images/black-hole.jpg",
+                "events/images/bicycle-tour.jpg",
+                "events/images/graffiti.jpg",
                 "ProfilePhoto/avatar1.png",
                 "ProfilePhoto/avatar3.jpg"
         ).forEach(this::uploadImage);
