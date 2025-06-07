@@ -1,66 +1,58 @@
 package ru.kpfu.itis.webapp.service;
 
 import io.minio.MinioClient;
-import io.minio.StatObjectArgs;
-import io.minio.RemoveObjectArgs;
-import org.junit.jupiter.api.AfterEach;
+import io.minio.PutObjectArgs;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
+import org.assertj.core.api.BDDAssertions;
+import ru.kpfu.itis.webapp.service.impl.FileServiceMinioImpl;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class MinioServiceTest {
 
-    @Autowired
-    private FileService minioService;
-
-    @Autowired
+    @Mock
     private MinioClient minioClient;
 
-    @Value("${minio.bucket}")
-    private String bucketName;
+    private FileService fileService;
 
-    private final String testFileName = "test.txt";
+    private static final String testBucketName = "event-horizon-bucket";
+
+    @BeforeEach
+    public void setUp() {
+        String testExternalEndpoint = "https://test.domain.com";
+        this.fileService = new FileServiceMinioImpl(testBucketName, testExternalEndpoint, minioClient);
+    }
 
     @Test
     void testFileUpload() throws Exception {
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                testFileName,
-                "text/plain",
-                "Test content".getBytes()
-        );
+        // given
+        String contentType = "text/plain";
+        byte[] contentBytes = "Test content".getBytes();
+        String testFileName = "test.txt";
+        MockMultipartFile file = new MockMultipartFile("file", testFileName, contentType, contentBytes);
+        ArgumentCaptor<PutObjectArgs> argsCaptor = ArgumentCaptor.forClass(PutObjectArgs.class);
+        when(minioClient.putObject(argsCaptor.capture())).thenReturn(any());
 
-        String url = minioService.uploadFile(file, testFileName);
+        // when
+        String url = fileService.uploadFile(file, testFileName);
 
-        assertNotNull(url, "URL файла не должен быть null");
-        assertTrue(url.contains(testFileName), "URL должен содержать имя файла");
+        // then
+        BDDAssertions.then(url)
+                .isNotBlank()
+                .contains(testFileName);
 
-        boolean exists = minioClient.statObject(
-                StatObjectArgs.builder()
-                        .bucket(bucketName)
-                        .object(testFileName)
-                        .build()
-        ) != null;
-        assertTrue(exists, "Файл должен существовать в MinIO");
+        var args = argsCaptor.getValue();
+        BDDAssertions.then(args).isNotNull();
+        BDDAssertions.then(args.contentType()).isEqualTo(contentType);
+        BDDAssertions.then(args.bucket()).isEqualTo(testBucketName);
+        BDDAssertions.then(args.object()).isEqualTo(testFileName);
     }
-
-    @AfterEach
-    void tearDown() {
-        try {
-            minioClient.removeObject(
-                    RemoveObjectArgs.builder()
-                            .bucket(bucketName)
-                            .object(testFileName)
-                            .build()
-            );
-        } catch (Exception e) {
-            System.err.println("Ошибка при очистке тестового файла: " + e.getMessage());
-        }
-    }
-
 }

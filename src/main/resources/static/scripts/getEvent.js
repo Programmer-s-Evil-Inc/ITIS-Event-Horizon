@@ -6,7 +6,7 @@ const eventTemplate = document.getElementById('event-template');
 async function loadEvents() {
     try {
         // У fetch по дефолту GET, так что явно не указываем
-        const response = await fetch('http://localhost:8080/api/events');
+        const response = await fetch('/api/events');
 
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
