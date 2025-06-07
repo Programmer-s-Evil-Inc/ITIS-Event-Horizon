@@ -7,6 +7,7 @@ import com.google.zxing.common.BitMatrix;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.kpfu.itis.webapp.dto.EventCreationRequest;
@@ -96,13 +97,9 @@ public class EventService {
     }
 
     @Transactional
-    public void createEvent(EventCreationRequest request, Long organizerId) {
+    public void createEvent(EventCreationRequest request, Long organizerId, String imageUid) {
         if (eventRepository.countByOrganizerId(organizerId) >= 10) {
             throw new IllegalStateException("Event limit reached");
-        }
-
-        if (!fileService.fileExists("/events/images/" + request.getImageUuid())) {
-            throw new ServiceException("Image not found: " + request.getImageUuid());
         }
 
         Event event = Event.builder()
@@ -113,14 +110,14 @@ public class EventService {
                 .participantLimit(request.getParticipantLimit())
                 .organizerId(organizerId)
                 .category(request.getCategory())
-                .imageUid(request.getImageUuid())
+                .imageUid(imageUid)
                 .build();
 
         eventRepository.save(event);
     }
 
     @Transactional
-    public void subscribeToEvent(Long userId, Long eventId) {
+    public String subscribeToEvent(Long userId, Long eventId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new DataNotFoundException("Event not found"));
 
@@ -141,11 +138,13 @@ public class EventService {
         Participation participation = new Participation();
         participation.setUser(user);
         participation.setEvent(event);
-
         participationRepository.save(participation);
+
         String qrCodeUid = generateAndUploadQrCode(participation.getId());
         participation.setQrCodeUid(qrCodeUid);
         participationRepository.save(participation);
+
+        return fileService.getBaseUrl() + qrCodeUid;
     }
 
     private String generateAndUploadQrCode(Long subscriptionId) {
@@ -163,5 +162,30 @@ public class EventService {
         } catch (Exception e) {
             throw new ServiceException("Ошибка генерации QR-кода");
         }
+    }
+
+    @Transactional
+    public void deleteEvent(Long eventId, Long organizerId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new DataNotFoundException("Event not found"));
+
+        if (!event.getOrganizerId().equals(organizerId)) {
+            throw new AccessDeniedException("Only event organizer can delete it");
+        }
+
+        List<Participation> participations = participationRepository.findByEventId(eventId);
+
+        for (Participation participation : participations) {
+            if (participation.getQrCodeUid() != null) {
+                fileService.deleteFile(participation.getQrCodeUid());
+            }
+            participationRepository.delete(participation);
+        }
+
+        if (event.getImageUid() != null) {
+            fileService.deleteFile(event.getImageUid());
+        }
+
+        eventRepository.delete(event);
     }
 }

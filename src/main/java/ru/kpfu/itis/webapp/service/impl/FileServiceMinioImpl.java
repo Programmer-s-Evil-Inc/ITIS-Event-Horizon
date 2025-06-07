@@ -2,6 +2,7 @@ package ru.kpfu.itis.webapp.service.impl;
 
 import io.minio.*;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -55,6 +56,21 @@ public class FileServiceMinioImpl implements FileService {
                         .build()
         );
         return getFileUrl(objectName);
+    }
+
+    @Override
+    public void deleteFile(String objectName) {
+        try {
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(objectName)
+                            .build()
+            );
+        } catch (Exception e) {
+            log.error("Error deleting file: {}", objectName, e);
+            throw new ServiceException("File deletion failed");
+        }
     }
 
     @Override

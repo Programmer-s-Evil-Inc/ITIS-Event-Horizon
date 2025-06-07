@@ -6,4 +6,5 @@ public interface FileService {
     String uploadFile(MultipartFile multipartFile, String objectName) throws Exception;
     String getBaseUrl();
     boolean fileExists(String objectName);
+    void deleteFile(String objectName);
 }
