@@ -16,6 +16,26 @@ INSERT INTO account (email, password, role, state, photo_uid)
 SELECT 'banned@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMy.MH/qj6W1mA6bYSUBBtFQ7Ug2QbSbaRe', 'GUEST', 'BANNED', 'ProfilePhoto%2Favatar1.png'
 WHERE NOT EXISTS (SELECT 1 FROM account WHERE email = 'banned@example.com');
 
+INSERT INTO account (email, password, role, state, photo_uid)
+SELECT 'student3@example.com', '$2a$10$IkGafrB8rDn3QGPAbtN4dOKmHTU2zTsoGyFWn28ivCB/nsY7UTxni', 'STUDENT', 'CONFIRMED', 'ProfilePhoto%2Favatar1.png'
+    WHERE NOT EXISTS (SELECT 1 FROM account WHERE email = 'student3@example.com');
+
+INSERT INTO account (email, password, role, state, photo_uid)
+SELECT 'student4@example.com', '$2a$10$Zw0NcwBI4OWYuel70lx9wurn9Xf6XvnG3f08wQkgYv.0rUbCJfOfu', 'STUDENT', 'CONFIRMED', 'ProfilePhoto%2Favatar1.png'
+    WHERE NOT EXISTS (SELECT 1 FROM account WHERE email = 'student4@example.com');
+
+INSERT INTO account (email, password, role, state, photo_uid)
+SELECT 'student5@example.com', '$2a$10$uCwcmdmQn1EHwq6HFdx.T.DiHudh2MrrTg0/gPPeXbWcMxKSRPelG', 'STUDENT', 'CONFIRMED', 'ProfilePhoto%2Favatar1.png'
+    WHERE NOT EXISTS (SELECT 1 FROM account WHERE email = 'student5@example.com');
+
+INSERT INTO account (email, password, role, state, photo_uid)
+SELECT 'student6@example.com', '$2a$10$7H5fjh3vjdRGpTOw8ZqlxOasfpzZqniYV2yQP1qpyH0VvHp34iEgS', 'STUDENT', 'CONFIRMED', 'ProfilePhoto%2Favatar1.png'
+    WHERE NOT EXISTS (SELECT 1 FROM account WHERE email = 'student6@example.com');
+
+INSERT INTO account (email, password, role, state, photo_uid)
+SELECT 'student7@example.com', '$2a$10$JMnPfV7zHJNz8bip2XRvL.p7qFY0altfGXPIFLSP.AOUOTayjCeha', 'STUDENT', 'CONFIRMED', 'ProfilePhoto%2Favatar1.png'
+    WHERE NOT EXISTS (SELECT 1 FROM account WHERE email = 'student7@example.com');
+
 -- Вставка событий с проверкой на существование
 INSERT INTO event (title, description, date, location, participant_limit, organizer_id, category, image_uid)
 SELECT 'Научная конференция', 'Конференция по искусственному интеллекту', '2023-12-15 10:00:00', 'Москва, Университет ИТ', 150, 1, 'SCIENCE', 'events/images/AI-image.png'
