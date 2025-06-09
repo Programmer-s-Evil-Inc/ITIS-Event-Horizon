@@ -43,7 +43,7 @@ public class EventService {
 
     public List<EventShortDto> getAllShortEvents(EventFilter filter) {
         List<Event> events;
-        if (filter.getTitle() != null && !filter.getTitle().isEmpty()) {
+        if (filter != null && filter.getTitle() != null && !filter.getTitle().isEmpty()) {
             events = eventRepository.findByTitleContainingIgnoreCase(filter.getTitle());
         } else {
             events = eventRepository.findAll();

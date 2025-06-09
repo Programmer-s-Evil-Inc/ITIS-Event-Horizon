@@ -34,3 +34,11 @@ create table if not exists persistent_logins
     token varchar(64) not null,
     last_used varchar(64) not null
 );
+
+CREATE TABLE IF NOT EXISTS telegram_user (
+    chat_id BIGINT PRIMARY KEY,
+    username VARCHAR(255),
+    token VARCHAR(255),
+    account_id BIGINT,
+    CONSTRAINT fk_account FOREIGN KEY (account_id) REFERENCES account(id)
+);

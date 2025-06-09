@@ -9,6 +9,16 @@ public class TelegramEventDto {
     private String description;
     private LocalDateTime date;
 
+    public TelegramEventDto() {
+    }
+
+    public TelegramEventDto(Long id, String title, String description, LocalDateTime date) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.date = date;
+    }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getTitle() { return title; }

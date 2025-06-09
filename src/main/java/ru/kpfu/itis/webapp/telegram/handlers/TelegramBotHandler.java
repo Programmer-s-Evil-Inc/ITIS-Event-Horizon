@@ -33,7 +33,7 @@ public class TelegramBotHandler extends TelegramLongPollingBot{
     private static TelegramBotHandler instance;
     private final ApiClientService apiClientService;
     private final TelegramUserRepository userRepository;
-    private static final String BOT_USERNAME = "ItisEventHorizonBot";
+    private static final String BOT_USERNAME = "testItissBot";
     private String botToken;
 
     @Value("${telegram.bot.token}")
@@ -79,14 +79,14 @@ public class TelegramBotHandler extends TelegramLongPollingBot{
                     sendMessage(chatId, "Привет! Используй команды:\n" +
                             "/login [username] [password] - авторизация\n" +
                             "/events - список мероприятий, на которые ты записан\n" +
-                            "/allEvents - список доступных мероприятий\n" +
+                            "/allevents - список доступных мероприятий\n" +
                             "/profile - твой профиль\n" +
                             "/subscribe <ID мероприятия> - зарегистрироваться на мероприятие");
                     break;
                 case "/events":
                     handleEventsCommand(chatId);
                     break;
-                case "/allEvents":
+                case "/allevents":
                     allEvents(chatId);
                     break;
                 case "/profile":
@@ -161,10 +161,8 @@ public class TelegramBotHandler extends TelegramLongPollingBot{
         Optional<TelegramUser> optionalUser = userRepository.findByChatId(chatId);
         if (optionalUser.isPresent()) {
             TelegramUser user = optionalUser.get();
-            Long userId = user.getSystemUserId(); // или user.getSomeUserId(), если нужен другой ID
-
+            Long userId = user.getSystemUserId();
             List<EventShortDto> events = telegramEventService.getEventsForTelegramUser(userId);
-
             if (events.isEmpty()) {
                 sendMessage(chatId, "📭 У вас нет зарегистрированных мероприятий.");
             } else {
@@ -186,7 +184,7 @@ public class TelegramBotHandler extends TelegramLongPollingBot{
 
     private void allEvents(long chatId) {
         try {
-            List<TelegramEventDto> events = apiClientService.getAllEvents();
+            List<TelegramEventDto> events = apiClientService.getAllEvents(null);
 
             if (events == null || events.isEmpty()) {
                 sendMessage(chatId, "📭 На данный момент нет доступных мероприятий");
