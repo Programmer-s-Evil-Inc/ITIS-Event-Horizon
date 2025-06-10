@@ -4,18 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Главная страница</title>
-    <!-- Bootstrap 5 CSS -->
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Иконки Font Awesome -->
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    ></script>
     <style>
         /* Дополнительные стили */
-        a {
-            text-decoration: none;
-        }
-        main {
-            margin: 0 auto;
-        }
         body {
             background: #BADDFF;
         }
@@ -35,12 +32,11 @@
             padding: 30px 0;
         }
 
-        /* Исправление для модального окна */
+        /* Чтоб модальное окно появлялось, не трогать короче */
         .modal {
             z-index: 1060;
         }
 
-        /* Стили для поисковой строки с иконкой + */
         .search-container {
             display: flex;
             align-items: center;
@@ -73,14 +69,17 @@
         .event-creator-form-group {
             margin: 5px 0 5px 10px; 
         }
-        .form-control {
+        .form-control, .form-select {
             width: 95%;
             align-items: center;
+        }
+        a[data-bs-toggle="modal"] {
+            text-decoration: none !important;
         }
     </style>
 </head>
 <body class="text-dark">
-<!-- Навигационное меню -->
+
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top bg-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="/">
@@ -107,52 +106,51 @@
     </div>
 </nav>
 
-<!-- Герой-секция -->
+
 <section class="hero-section text-center">
     <div class="container">
         <h1 class="display-4 fw-bold mb-4 text-dark">Добро пожаловать на наш информационный сайт!</h1>
         <p class="lead mb-4 text-dark">ИТИС КФУ приветствует вас! Как мы можем вам помочь?</p>
 
         <div class="search-container">
-            <!-- Кнопка добавления -->
+
             <a class="add-btn text-light" data-bs-toggle="modal" data-bs-target="#exampleModal" title="Добавить">
                 <i class="fas fa-plus-circle"></i>
             </a>
 
-            <!-- Поисковая строка -->
+
+
             <form class="search-form">
                 <div class="input-group">
-                    <input class="form-control rounded-start-3" type="search" placeholder="Поиск...">
-                    <button class="btn btn-outline-light" type="submit">
-                        <i class="fas fa-search"></i> Найти
-                    </button>
+                    <input id="search-input" class="form-control rounded-start-3"
+                           type="search" placeholder="Поиск...">
                 </div>
             </form>
         </div>
     </div>
 </section>
 
-<!-- Основной контент -->
+
 <div class="container-fluid">
     <div class="row">
-        <!-- Основная колонка -->
+
         <main class="col-lg-8 mx-auto">
             <h2 class="mb-4 text-center">Последние публикации</h2>
 
-            <!-- Этот контейнер будет заполняться через JS -->
+<!--Сюда подгружаются ивенты из бдшки            -->
             <div id="events-container"></div>
 
         </main>
     </div>
 </div>
 
-<!-- Футер -->
+
 <footer class="mt-5 bg-dark text-secondary" id="footer">
     <div class="container">
         <div class="row">
             <div class="col-md-4 mb-4">
                 <h5 class="text-light">О нас</h5>
-                <p>Краткое описание bla bla bla ble ble ble blu blu blu 34567890ю.</p>
+                <p>Краткое описание...</p>
             </div>
             <div class="col-md-4 mb-4">
                 <h5 class="text-light">Быстрые ссылки</h5>
@@ -178,7 +176,7 @@
     </div>
 </footer>
 
-<!-- Модальное окно -->
+
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -187,41 +185,77 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="container">
-            <form>
+            <form id="data-form">
                 <div class="row">
-                <div class="form-group event-creator-form-group">
-                    <label>Название мероприятия</label>
-                    <input type="text" class="form-control" placeholder="Введите название">
-                </div>
-                <div class="form-group event-creator-form-group">
-                    <label>Описание</label>
-                    <input type="text" class="form-control" placeholder="Введите описание">
-                </div>
-                <div class="form-group event-creator-form-group">
-                    <label>Дата проведения</label>
-                    <input type="date" class="form-control" placeholder="Введите название">
-                </div>
-                <div class="form-group event-creator-form-group">
-                    <label>Место проведения</label>
-                    <input type="text" class="form-control" placeholder="Введите название">
-                </div>
+                    <div class="form-group event-creator-form-group">
+                        <label>Название мероприятия</label>
+                        <input type="text" class="form-control" id="event-name" placeholder="Введите название" required>
+                    </div>
+                    <div class="form-group event-creator-form-group">
+                        <label>Описание</label>
+                        <input type="text" id="event-description" class="form-control" placeholder="Введите описание" required>
+                    </div>
+                    <div class="form-group event-creator-form-group">
+                        <label>Дата проведения</label>
+                        <input type="datetime-local" id="event-date" class="form-control" placeholder="Введите дату и время" required>
+                    </div>
+                    <div class="form-group event-creator-form-group">
+                        <label>Категория</label>
+                        <div>
+                            <select class="form-select" id="event-category" required>
+                                <option value="SPORT">Спорт</option>
+                                <option value="SCIENCE">Наука</option>
+                                <option value="CULTURE">Культура</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group event-creator-form-group">
+                        <label>Место проведения</label>
+                        <input type="text" id="event-location" class="form-control" placeholder="Введите название" required>
+                    </div>
+                    <div class="form-group event-creator-form-group">
+                        <label>Количество участников</label>
+                        <input type="number" id="event-participant-limit" class="form-control" placeholder="Введите количество участников" min="1" required>
+                    </div>
                     <div class="form-group event-creator-form-group">
                         <label>Добавьте изображение</label>
-                        <input type="file" class="form-control" accept="image/*" placeholder="Добавить изображение">
+                        <input type="file" class="form-control" id="event-image" accept="image/*" placeholder="Добавить изображение" required>
                     </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Создать</button>
                 </div>
             </form>
             </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="full-modal-event">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+            </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <button type="button" class="btn btn-primary">Создать</button>
+                <button type="submit" class="btn btn-primary">Принять участие</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Bootstrap 5 JS Bundle with Popper -->
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/scripts/getEvent.js"></script>
+
+<script src="/scripts/getEvents.js"></script>
+<script src="/scripts/createEvent.js"></script>
 </body>
 </html>
