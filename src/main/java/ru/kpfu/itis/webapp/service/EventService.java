@@ -7,6 +7,7 @@ import com.google.zxing.common.BitMatrix;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,6 +38,8 @@ public class EventService {
     private final ParticipationRepository participationRepository;
     private final AccountRepository accountRepository;
     private final FileService fileService;
+    @Value("${server.url}")
+    private String serverBaseUrl;
 
     public List<EventShortDto> getAllShortEvents(EventFilter filter) {
         List<Event> events;
@@ -149,7 +152,7 @@ public class EventService {
 
     private String generateAndUploadQrCode(Long subscriptionId) {
         try {
-            String qrCodeText = "http://localhost:8080/api/events/subscriptions/validate?subscriptionId=" + subscriptionId;
+            String qrCodeText = serverBaseUrl + "/api/events/subscriptions/validate?subscriptionId=" + subscriptionId;
             BitMatrix bitMatrix = new MultiFormatWriter().encode(qrCodeText, BarcodeFormat.QR_CODE, 300, 300);
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
