@@ -133,10 +133,16 @@ function renderEvents(events) {
 // Рендеринг одной карточки события (без изменений)
 function createEventCard(event) {
     const card = document.createElement('div');
-    card.className = 'event-card card mb-4 rounded-5';
+
+    // классы для центрирования и управления размером
+    card.className = 'event-card card mb-4 rounded-5 mx-auto';
+    card.style.width = '80%'; // Ширина относительно родителя (можно изменить)
+    card.style.aspectRatio = '16/9';
+    card.style.maxWidth = '1300px';
+    card.style.maxHeight = '600px';
 
     const cardBody = document.createElement('div');
-    cardBody.className = 'card-body rounded-5 position-relative';
+    cardBody.className = 'card-body rounded-5 position-relative h-100'; // h-100 для заполнения высоты
 
     cardBody.style.background = `
         linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
@@ -148,15 +154,18 @@ function createEventCard(event) {
     cardBody.style.height = '50vh';
 
     const title = document.createElement('h3');
-    title.className = 'card-title';
-    title.textContent = event.title;
+    title.className = 'title text-center mb-3 mt-auto'; // mt-auto помогает с вертикальным позиционированием
+    title.style.fontSize = '3.5rem';
+    title.textContent = event.title
 
     const date = document.createElement('p');
-    date.className = 'mb-1';
+    date.className = 'date position-absolute bottom-0 end-0 m-3';
+    date.style.fontSize = '1.5rem';
     date.innerHTML = `<i class="far fa-calendar-alt me-2"></i>${formatDate(event.date)}`;
 
     const description = document.createElement('p');
-    description.className = 'card-text';
+    description.className = 'description text-center mb-auto'; // mb-auto для вертикального позиционирования
+    description.style.fontSize = '2.5rem';
     description.textContent = event.description;
 
     cardBody.append(title, date, description);
