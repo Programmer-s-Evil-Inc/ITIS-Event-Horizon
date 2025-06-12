@@ -40,6 +40,7 @@ services:
     expose:
       - "8080"
     environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - DB_HOST=event-horizon-db
       - DB_PORT=5432
       - SERVER_URL=https://event.bikini-bottom.com

@@ -110,9 +110,10 @@ jobs:
         run: |
           ssh $SSH_OPTIONS ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd ${{ secrets.DEPLOY_PATH }}
+            echo "DEBUG: Token length = ${#TELEGRAM_BOT_TOKEN}"
             docker compose down --remove-orphans || true
             docker compose pull || true
-            docker compose up -d --build
+            TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} docker compose up -d --build
           EOF
 
   health-check:
