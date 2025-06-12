@@ -107,15 +107,13 @@ jobs:
           rsync -az -e "ssh $SSH_OPTIONS" --exclude='.git' --exclude='nginx/certs' --exclude='nginx/html' ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}
 
       - name: Deploy application
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         run: |
           ssh $SSH_OPTIONS ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd ${{ secrets.DEPLOY_PATH }}
-            echo "DEBUG: Token length = ${#TELEGRAM_BOT_TOKEN}"
-            docker compose down --remove-orphans || true
-            docker compose pull || true
-            docker compose up -d --build
+            export TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
+            docker compose -f docker-compose.prod.yaml down --remove-orphans || true
+            docker compose -f docker-compose.prod.yaml pull || true
+            docker compose -f docker-compose.prod.yaml up -d --build
           EOF
 
   health-check:
@@ -190,7 +188,7 @@ jobs:
         run: |
           ssh $SSH_OPTIONS ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd ${{ secrets.DEPLOY_PATH }}
-            docker compose restart
+            docker compose -f docker-compose.prod.yaml restart
           EOF
           sleep 10
   #  rollback:
@@ -241,8 +239,8 @@ jobs:
       - name: Collect container logs
         run: |
           mkdir -p logs
-          for svc in $(ssh $SSH_OPTIONS ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.DEPLOY_PATH }} && docker compose config --services"); do
-            ssh $SSH_OPTIONS ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.DEPLOY_PATH }} && docker compose logs $svc" > logs/${svc}.log || true
+          for svc in $(ssh $SSH_OPTIONS ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.DEPLOY_PATH }} && docker compose -f docker-compose.prod.yaml config --services"); do
+            ssh $SSH_OPTIONS ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.DEPLOY_PATH }} && docker compose -f docker-compose.prod.yaml logs $svc" > logs/${svc}.log || true
           done
       - name: Upload logs as artifact
         uses: actions/upload-artifact@v4
