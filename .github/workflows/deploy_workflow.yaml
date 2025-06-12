@@ -107,13 +107,15 @@ jobs:
           rsync -az -e "ssh $SSH_OPTIONS" --exclude='.git' --exclude='nginx/certs' --exclude='nginx/html' ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}
 
       - name: Deploy application
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         run: |
           ssh $SSH_OPTIONS ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd ${{ secrets.DEPLOY_PATH }}
             echo "DEBUG: Token length = ${#TELEGRAM_BOT_TOKEN}"
             docker compose down --remove-orphans || true
             docker compose pull || true
-            TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} docker compose up -d --build
+            docker compose up -d --build
           EOF
 
   health-check:
