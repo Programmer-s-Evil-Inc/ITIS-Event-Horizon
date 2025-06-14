@@ -1,5 +1,10 @@
 // Получаем элементы DOM
 const eventsContainer = document.getElementById('events-container');
+const modalElement = document.getElementById('full-modal-event');
+const modalBody = modalElement.querySelector('.modal-body');
+const subscribeBtn = modalElement.querySelector('.btn-primary');
+
+let currentEventId = null; // для текущего события
 
 let searchTimeout = null;
 const SEARCH_DELAY = 300;
@@ -36,6 +41,17 @@ async function loadEventDetails(eventId) {
 
         const eventDetails = await response.json();
         populateModal(eventDetails);
+        currentEventId = eventDetails.id;
+
+        // Сброс состояния кнопки и алертов при открытии модалки
+        subscribeBtn.disabled = false;
+        subscribeBtn.textContent = 'Принять участие';
+        modalBody.querySelectorAll('.alert').forEach(a => a.remove());
+
+        // Открываем модалку через Bootstrap API
+        const bsModal = new bootstrap.Modal(modalElement);
+        bsModal.show();
+
     } catch (error) {
         handleError(error);
     }
@@ -134,15 +150,10 @@ function renderEvents(events) {
 function createEventCard(event) {
     const card = document.createElement('div');
 
-    // классы для центрирования и управления размером
-    card.className = 'event-card card mb-4 rounded-5 mx-auto';
-    card.style.width = '80%'; // Ширина относительно родителя (можно изменить)
-    card.style.aspectRatio = '16/9';
-    card.style.maxWidth = '1300px';
-    card.style.maxHeight = '600px';
+    card.className = 'event-card card mb-4 rounded-5';
 
     const cardBody = document.createElement('div');
-    cardBody.className = 'card-body rounded-5 position-relative h-100'; // h-100 для заполнения высоты
+    cardBody.className = 'card-body rounded-5 position-relative';
 
     cardBody.style.background = `
         linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
@@ -154,18 +165,14 @@ function createEventCard(event) {
     cardBody.style.height = '50vh';
 
     const title = document.createElement('h3');
-    title.className = 'title text-center mb-3 mt-auto'; // mt-auto помогает с вертикальным позиционированием
-    title.style.fontSize = '3.5rem';
-    title.textContent = event.title
+    title.className = 'card-title';
+    title.textContent = event.title;
 
     const date = document.createElement('p');
-    date.className = 'date position-absolute bottom-0 end-0 m-3';
-    date.style.fontSize = '1.5rem';
-    date.innerHTML = `<i class="far fa-calendar-alt me-2"></i>${formatDate(event.date)}`;
+    date.className = 'mb-1';
 
     const description = document.createElement('p');
-    description.className = 'description text-center mb-auto'; // mb-auto для вертикального позиционирования
-    description.style.fontSize = '2.5rem';
+    description.className = 'card-text';
     description.textContent = event.description;
 
     cardBody.append(title, date, description);
@@ -207,6 +214,66 @@ function handleFormSubmit(e) {
     const searchTerm = document.getElementById('search-input').value.trim();
     loadEvents(searchTerm);
 }
+
+// Обработчик клика кнопки "Принять участие"
+subscribeBtn.addEventListener('click', async () => {
+    if (!currentEventId) return;
+
+    subscribeBtn.disabled = true;
+    subscribeBtn.textContent = 'Отправка...';
+
+    // Удаляем предыдущие сообщения
+    modalBody.querySelectorAll('.alert').forEach(a => a.remove());
+
+    try {
+        const response = await fetch(`/api/events/${currentEventId}/subscribe`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Ошибка: ${response.status}`);
+        }
+
+        const qrCodeUrl = await response.text();
+
+        const qrResponse = await fetch(qrCodeUrl);
+        if (!qrResponse.ok) throw new Error('Ошибка при скачивании QR-кода');
+
+        const blob = await qrResponse.blob();
+        const blobUrl = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = `qrcode_event_${currentEventId}.png`;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Освобождаем URL
+        URL.revokeObjectURL(blobUrl);
+
+        // Обновляем интерфейс
+        subscribeBtn.textContent = 'Вы подписаны';
+        subscribeBtn.disabled = true;
+
+        modalBody.insertAdjacentHTML('beforeend', `
+        <div class="alert alert-success mt-3">
+            Вы успешно подписались! QR-код скачан автоматически.
+        </div>
+    `);
+
+    } catch (error) {
+        modalBody.insertAdjacentHTML('beforeend', `
+            <div class="alert alert-danger mt-3">
+                Не удалось подписаться
+            </div>
+        `);
+        subscribeBtn.textContent = 'Принять участие';
+        subscribeBtn.disabled = false;
+    }
+});
 
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
