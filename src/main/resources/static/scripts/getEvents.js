@@ -1,5 +1,10 @@
 // Получаем элементы DOM
 const eventsContainer = document.getElementById('events-container');
+const modalElement = document.getElementById('full-modal-event');
+const modalBody = modalElement.querySelector('.modal-body');
+const subscribeBtn = modalElement.querySelector('.btn-primary');
+
+let currentEventId = null; // для текущего события
 
 let searchTimeout = null;
 const SEARCH_DELAY = 300;
@@ -36,6 +41,17 @@ async function loadEventDetails(eventId) {
 
         const eventDetails = await response.json();
         populateModal(eventDetails);
+        currentEventId = eventDetails.id;
+
+        // Сброс состояния кнопки и алертов при открытии модалки
+        subscribeBtn.disabled = false;
+        subscribeBtn.textContent = 'Принять участие';
+        modalBody.querySelectorAll('.alert').forEach(a => a.remove());
+
+        // Открываем модалку через Bootstrap API
+        const bsModal = new bootstrap.Modal(modalElement);
+        bsModal.show();
+
     } catch (error) {
         handleError(error);
     }
@@ -133,6 +149,7 @@ function renderEvents(events) {
 // Рендеринг одной карточки события (без изменений)
 function createEventCard(event) {
     const card = document.createElement('div');
+
     card.className = 'event-card card mb-4 rounded-5';
 
     const cardBody = document.createElement('div');
@@ -153,7 +170,6 @@ function createEventCard(event) {
 
     const date = document.createElement('p');
     date.className = 'mb-1';
-    date.innerHTML = `<i class="far fa-calendar-alt me-2"></i>${formatDate(event.date)}`;
 
     const description = document.createElement('p');
     description.className = 'card-text';
@@ -198,6 +214,66 @@ function handleFormSubmit(e) {
     const searchTerm = document.getElementById('search-input').value.trim();
     loadEvents(searchTerm);
 }
+
+// Обработчик клика кнопки "Принять участие"
+subscribeBtn.addEventListener('click', async () => {
+    if (!currentEventId) return;
+
+    subscribeBtn.disabled = true;
+    subscribeBtn.textContent = 'Отправка...';
+
+    // Удаляем предыдущие сообщения
+    modalBody.querySelectorAll('.alert').forEach(a => a.remove());
+
+    try {
+        const response = await fetch(`/api/events/${currentEventId}/subscribe`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Ошибка: ${response.status}`);
+        }
+
+        const qrCodeUrl = await response.text();
+
+        const qrResponse = await fetch(qrCodeUrl);
+        if (!qrResponse.ok) throw new Error('Ошибка при скачивании QR-кода');
+
+        const blob = await qrResponse.blob();
+        const blobUrl = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = `qrcode_event_${currentEventId}.png`;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Освобождаем URL
+        URL.revokeObjectURL(blobUrl);
+
+        // Обновляем интерфейс
+        subscribeBtn.textContent = 'Вы подписаны';
+        subscribeBtn.disabled = true;
+
+        modalBody.insertAdjacentHTML('beforeend', `
+        <div class="alert alert-success mt-3">
+            Вы успешно подписались! QR-код скачан автоматически.
+        </div>
+    `);
+
+    } catch (error) {
+        modalBody.insertAdjacentHTML('beforeend', `
+            <div class="alert alert-danger mt-3">
+                Не удалось подписаться
+            </div>
+        `);
+        subscribeBtn.textContent = 'Принять участие';
+        subscribeBtn.disabled = false;
+    }
+});
 
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
