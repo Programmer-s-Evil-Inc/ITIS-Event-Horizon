@@ -30,18 +30,22 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             if (response.ok) {
-                // Закрытие модального окна
+                // Находим элементы перед закрытием
                 const modalElement = document.getElementById('exampleModal');
-                if (modalElement) {
-                    const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
-                    modal.hide();
-                }
-                form.reset();
+                const openerButton = document.querySelector('[data-bs-toggle="modal"][data-bs-target="#exampleModal"]');
+
+                if (!response.ok) throw new Error(await response.text());
+
+                // Правильное закрытие модального окна
+                closeModalProperly();
+
+                // Уведомление и сброс
                 alert('Мероприятие успешно создано!');
-                if (typeof loadEvents === 'function') {
-                    loadEvents();
-                }
-            } else if (response.status >= 300 && response.status < 400) {
+                form.reset();
+
+                // Обновление списка
+                if (typeof loadEvents === 'function') loadEvents();
+                } else if (response.status >= 300 && response.status < 400) {
                 // Перенаправления (300-399)
                 const location = response.headers.get('Location');
                 alert(`Перенаправление на: ${location}`);
@@ -81,3 +85,28 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+function closeModalProperly() {
+    const modal = bootstrap.Modal.getInstance(document.getElementById('exampleModal'));
+    if (!modal) return;
+
+    // 1. Удаляем атрибут, вызывающий проблему
+    modal._element.removeAttribute('aria-hidden');
+
+    // 2. Скрываем модальное окно без анимации (решение проблемы)
+    modal._element.style.display = 'none';
+    modal._element.classList.remove('show');
+    document.body.classList.remove('modal-open');
+
+    // 3. Удаляем backdrop
+    const backdrops = document.querySelectorAll('.modal-backdrop');
+    backdrops.forEach(backdrop => backdrop.remove());
+
+    // 4. Восстанавливаем прокрутку
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+
+    // 5. Возвращаем фокус на кнопку открытия
+    const openerBtn = document.querySelector('[data-bs-target="#exampleModal"]');
+    if (openerBtn) openerBtn.focus();
+}
