@@ -12,6 +12,9 @@
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
     ></script>
     <style>
+        .modal.fade {
+            transition: none !important; /* Отключаем анимацию для надежности */
+        }
         /* Дополнительные стили */
         body {
             background: #BADDFF;
@@ -27,7 +30,12 @@
             background-position: center;
             color: #e4e4e4;
         }
-
+        .event-card {
+            transition: transform 0.2s ease;
+        }
+        .event-card:hover {
+            transform: scale(1.02);
+        }
         footer {
             padding: 30px 0;
         }
@@ -184,7 +192,7 @@
 </footer>
 
 
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" >
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
