@@ -1,0 +1,249 @@
+name: Deploy Workflow
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - '**'
+
+concurrency:
+  group: deploy-${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  SSH_OPTIONS: -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+
+jobs:
+  build-and-test: # Новая джоба для сборки и тестирования
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 23
+        uses: actions/setup-java@v4
+        with:
+          java-version: '23'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build and test with Maven
+        run: mvn clean install
+
+  setup:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+  prepare-server:
+    runs-on: ubuntu-latest
+    needs:
+      - setup
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Prepare remote environment with Docker Compose v2
+        run: |
+          ssh $SSH_OPTIONS ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            sudo apt-get update -y
+            sudo apt-get install -y docker.io curl
+            DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
+            mkdir -p $DOCKER_CONFIG/cli-plugins
+            curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 \
+              -o $DOCKER_CONFIG/cli-plugins/docker-compose
+            chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
+            sudo usermod -aG docker $USER || true
+            sudo mkdir -p ${{ secrets.DEPLOY_PATH }}
+            sudo mkdir -p ${{ secrets.BACKUP_PATH }}
+            sudo chown -R $USER:$USER ${{ secrets.DEPLOY_PATH }}
+            sudo chown -R $USER:$USER ${{ secrets.BACKUP_PATH }}
+          EOF
+
+  backup:
+    runs-on: ubuntu-latest
+    needs: prepare-server
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    steps:
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Backup current images
+        run: |
+          ssh $SSH_OPTIONS ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            mkdir -p ${{ secrets.BACKUP_PATH }}
+            cp ${{ secrets.DEPLOY_PATH }}/docker-compose.prod.yaml ${{ secrets.BACKUP_PATH }}/docker-compose.prod.yaml.bak
+            for svc in $(docker compose -f ${{ secrets.DEPLOY_PATH }}/docker-compose.prod.yaml config --services); do
+              img=$(docker compose -f ${{ secrets.DEPLOY_PATH }}/docker-compose.prod.yaml ps -q $svc | xargs docker inspect --format='{{.Config.Image}}')
+              echo "$img" > "${{ secrets.BACKUP_PATH }}/${svc}_image_backup"
+            done
+          EOF
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: backup
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Copy files to remote server
+        run: |
+          rsync -az -e "ssh $SSH_OPTIONS" --exclude='.git' --exclude='nginx/certs' --exclude='nginx/html' ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}
+
+      - name: Deploy application
+        run: |
+          ssh $SSH_OPTIONS ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            cd ${{ secrets.DEPLOY_PATH }}
+            export TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
+            docker compose -f docker-compose.prod.yaml down --remove-orphans || true
+            docker compose -f docker-compose.prod.yaml pull || true
+            docker compose -f docker-compose.prod.yaml up -d --build
+          EOF
+
+  health-check:
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    outputs:
+      result: ${{ steps.check.outputs.result }}
+    steps:
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - id: check
+        name: Health check
+        run: |
+          echo "::group::Health Check Attempts"
+          
+          success=0
+          delays=(5 15 30)
+          protos=(http https)
+          
+          attempt() {
+            PROTO=$1
+            DELAY=$2
+            URL="${PROTO}://${{ secrets.SSH_HOST }}"
+            echo ""
+            echo "==> Sleeping ${DELAY}s before checking ${URL}"
+            sleep $DELAY
+            if STATUS=$(curl -L -s -o /dev/null -w "%{http_code}" "$URL"); then
+              CURL_EXIT=0
+            else
+              CURL_EXIT=$?
+              STATUS=000
+            fi
+            echo "-> Attempt to ${URL} after ${DELAY}s: STATUS=$STATUS, CURL_EXIT=$CURL_EXIT"
+            if [ "$CURL_EXIT" -eq 0 ] && [[ "$STATUS" =~ ^2|3 ]]; then
+              echo "✅ SUCCESS: ${PROTO} check passed"
+              success=1
+              return 0
+            else
+              echo "❌ FAILURE: ${PROTO} check failed with code $STATUS and exit $CURL_EXIT"
+              return 1
+            fi
+          }
+          
+          for delay in "${delays[@]}"; do
+            for proto in "${protos[@]}"; do
+              attempt "$proto" "$delay" && break 2
+            done
+          done
+          
+          echo "::endgroup::"
+          
+          if [ "$success" -eq 1 ]; then
+            echo "result=pass" >> $GITHUB_OUTPUT
+          else
+            echo "result=fail" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+  restart-services:
+    runs-on: ubuntu-latest
+    needs: health-check
+    if: ${{ needs.health-check.outputs.result == 'fail' && github.event_name == 'workflow_dispatch' }}
+    steps:
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Restart services
+        run: |
+          ssh $SSH_OPTIONS ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            cd ${{ secrets.DEPLOY_PATH }}
+            docker compose -f docker-compose.prod.yaml restart
+          EOF
+          sleep 10
+  #  rollback:
+  #    runs-on: ubuntu-latest
+  #    needs: restart-services
+  #    steps:
+  #      - name: Set up SSH key
+  #        uses: webfactory/ssh-agent@v0.9.0
+  #        with:
+  #          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+  #      - name: Retry health check and rollback if still failing
+  #        run: |
+  #          STATUS=$(curl -k -s -o /dev/null -w "%{http_code}" https://${{ secrets.SSH_HOST }})
+  #          if [ "$STATUS" -ne 200 ]; then
+  #            echo "Rollback initiated. Status: $STATUS"
+  #            ssh $SSH_OPTIONS ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+  #              cd ${{ secrets.DEPLOY_PATH }}
+  #              docker compose down || true
+  #              cp ${{ secrets.BACKUP_PATH }}/docker-compose.prod.yaml.bak ./docker-compose.prod.yaml || true
+  #              for f in ${{ secrets.BACKUP_PATH }}/*_image_backup; do
+  #                svc=$(basename $f | sed 's/.image_backup//')
+  #                img=$(cat $f)
+  #                if [ -n "$img" ]; then
+  #                  docker pull $img || true
+  #                  docker tag $img $svc:latest || true
+  #                fi
+  #              done
+  #              docker compose up -d
+  #            EOF
+  #            exit 1
+  #          else
+  #            echo "Recovered after restart. Status: $STATUS"
+  #          fi
+
+  collect-logs:
+    runs-on: ubuntu-latest
+    needs:
+      - health-check
+      - restart-services
+    #      - rollback
+    if: always()
+    steps:
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Collect container logs
+        run: |
+          mkdir -p logs
+          for svc in $(ssh $SSH_OPTIONS ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.DEPLOY_PATH }} && docker compose -f docker-compose.prod.yaml config --services"); do
+            ssh $SSH_OPTIONS ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.DEPLOY_PATH }} && docker compose -f docker-compose.prod.yaml logs $svc" > logs/${svc}.log || true
+          done
+      - name: Upload logs as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-service-logs
+          path: logs/

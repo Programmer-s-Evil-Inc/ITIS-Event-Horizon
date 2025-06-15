@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная страница</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    ></script>
+    <style>
+        .modal.fade {
+            transition: none !important; /* Отключаем анимацию для надежности */
+        }
+        /* Дополнительные стили */
+        body {
+            background: #BADDFF;
+        }
+        .hero-section {
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 100px 0;
+        }
+        .card-body {
+            background-size: cover;
+            background-position: center;
+            color: #e4e4e4;
+        }
+        .event-card {
+            transition: transform 0.2s ease;
+        }
+        .event-card:hover {
+            transform: scale(1.02);
+        }
+        footer {
+            padding: 30px 0;
+        }
+
+        /* Чтоб модальное окно появлялось, не трогать короче */
+        .modal {
+            z-index: 1060;
+        }
+
+        /* Поисковая форма */
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        .search-pill {
+            display: flex;
+            align-items: center;
+            background: #ffffff;
+            border-radius: 50px;
+            padding: 5px 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 900px;
+            width: 100%;
+            max-height: 400px;
+            height: 100%;
+        }
+        .search-pill .add-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #007bff;
+            color: #fff;
+            font-size: 1rem;
+            margin-right: 10px;
+            transition: transform .2s, background .2s;
+        }
+        .search-pill .add-btn:hover {
+            transform: scale(1.2);
+            background: #0056b3;
+        }
+        .search-pill input {
+            border: none;
+            outline: none;
+            flex-grow: 1;
+            font-size: 1rem;
+        }
+
+        .event-creator-form-group {
+            margin: 5px 0 5px 10px; 
+        }
+        .form-control, .form-select {
+            width: 95%;
+            align-items: center;
+        }
+        a[data-bs-toggle="modal"] {
+            text-decoration: none !important;
+        }
+    </style>
+</head>
+<body class="text-dark">
+
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <img src="https://kpfu.ru/docs/F81942084654/img656916153.jpg" class="d-inline-block align-top rounded-2" alt="Лого" height="45">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link fw-bold" href="#">Главная</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-bold" href="#footer">О нас</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a href="profile" class="nav-link fw-bold"><i class="fas fa-user-circle fa-lg" id="profile"></i> Личный кабинет</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<section class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-4 text-dark">Добро пожаловать на наш сайт!</h1>
+        <p class="lead mb-4 text-dark">ИТИС КФУ приветствует вас! Как мы можем вам помочь?</p>
+        <!-- Поисковая строка -->
+        <div class="search-container">
+            <div class="search-pill">
+                <!-- Заменили # на + -->
+                <a class="add-btn" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    <i class="fas fa-plus"></i>
+                </a>
+                <input type="search" id="search-input" placeholder="Поиск..." />
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<div class="container-fluid">
+    <div class="row">
+
+        <main class="col-lg-8 mx-auto">
+            <h1 class="mb-4 text-center">Последние публикации</h1>
+
+<!--Сюда подгружаются ивенты из бдшки            -->
+            <div id="events-container"></div>
+
+        </main>
+    </div>
+</div>
+
+
+<footer class="mt-5 bg-dark text-secondary" id="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <h5 class="text-light">О нас</h5>
+                <p>Краткое описание...</p>
+            </div>
+            <div class="col-md-4 mb-4">
+                <h5 class="text-light">Быстрые ссылки</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-secondary">Главная</a></li>
+                    <li><a href="#" class="text-secondary">Статьи</a></li>
+                    <li><a href="#" class="text-secondary">Категории</a></li>
+                    <li><a href="#" class="text-secondary">Контакты</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4 mb-4">
+                <h5 class="text-light">Контакты</h5>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-envelope me-2"></i> itis@kpfu.ru</li>
+                    <li><i class="fas fa-map-marker-alt me-2"></i> г. Казань, ул. Кремлевская, 35</li>
+                </ul>
+            </div>
+        </div>
+        <hr class="bg-light">
+        <div class="text-center">
+            <p class="mb-0">© 2025 КФУ ИТИС. Все права защищены</p>
+        </div>
+    </div>
+</footer>
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" >
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Создать мероприятие</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="container">
+            <form id="data-form">
+                <div class="row">
+                    <div class="form-group event-creator-form-group">
+                        <label>Название мероприятия</label>
+                        <input type="text" class="form-control" id="event-name" placeholder="Введите название" required>
+                    </div>
+                    <div class="form-group event-creator-form-group">
+                        <label>Описание</label>
+                        <input type="text" id="event-description" class="form-control" placeholder="Введите описание" required>
+                    </div>
+                    <div class="form-group event-creator-form-group">
+                        <label>Дата проведения</label>
+                        <input type="datetime-local" id="event-date" class="form-control" placeholder="Введите дату и время" required>
+                    </div>
+                    <div class="form-group event-creator-form-group">
+                        <label>Категория</label>
+                        <div>
+                            <select class="form-select" id="event-category" required>
+                                <option value="SPORT">Спорт</option>
+                                <option value="SCIENCE">Наука</option>
+                                <option value="CULTURE">Культура</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group event-creator-form-group">
+                        <label>Место проведения</label>
+                        <input type="text" id="event-location" class="form-control" placeholder="Введите название" required>
+                    </div>
+                    <div class="form-group event-creator-form-group">
+                        <label>Количество участников</label>
+                        <input type="number" id="event-participant-limit" class="form-control" placeholder="Введите количество участников" min="1" required>
+                    </div>
+                    <div class="form-group event-creator-form-group">
+                        <label>Добавьте изображение</label>
+                        <input type="file" class="form-control" id="event-image" accept="image/*" placeholder="Добавить изображение" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Создать</button>
+                </div>
+            </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="full-modal-event">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="submit" class="btn btn-primary">Принять участие</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="/scripts/getEvents.js"></script>
+<script src="/scripts/createEvent.js"></script>
+</body>
+</html>
