@@ -7,7 +7,6 @@ INSERT INTO account (email, password, role, state, photo_uid)
 SELECT 'not_confirmed@example.com', '$2a$10$Jmzm0cm58VLm0yo/dYdcKu6Gqm6UJzZqeBieIH/DkGgZ3jcAQHw6a', 'STUDENT', 'NOT_CONFIRMED', 'ProfilePhoto%2Favatar3.jpg'
 WHERE NOT EXISTS (SELECT 1 FROM account WHERE email = 'not_confirmed@example.com');
 
-
 INSERT INTO account (email, password, role, state, photo_uid)
 SELECT 'organizer@example.com', '$2a$10$Jmzm0cm58VLm0yo/dYdcKu6Gqm6UJzZqeBieIH/DkGgZ3jcAQHw6a', 'ORGANIZER', 'CONFIRMED', 'ProfilePhoto%2Favatar3.jpg'
 WHERE NOT EXISTS (SELECT 1 FROM account WHERE email = 'organizer@example.com');
