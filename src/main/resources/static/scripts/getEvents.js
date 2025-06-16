@@ -1,15 +1,14 @@
-// Получаем элементы DOM
 const eventsContainer = document.getElementById('events-container');
 const modalElement = document.getElementById('full-modal-event');
 const modalBody = modalElement.querySelector('.modal-body');
 const subscribeBtn = modalElement.querySelector('.btn-primary');
 
-let currentEventId = null; // для текущего события
+let currentEventId = null;
 
 let searchTimeout = null;
 const SEARCH_DELAY = 300;
 
-// Функция загрузки и отображения событий
+// Основная функция загрузки и отображения событий
 async function loadEvents(searchQuery = "") {
     try {
         const url = new URL('/api/events', window.location.origin);
@@ -43,12 +42,10 @@ async function loadEventDetails(eventId) {
         populateModal(eventDetails);
         currentEventId = eventDetails.id;
 
-        // Сброс состояния кнопки и алертов при открытии модалки
         subscribeBtn.disabled = false;
         subscribeBtn.textContent = 'Принять участие';
         modalBody.querySelectorAll('.alert').forEach(a => a.remove());
 
-        // Открываем модалку через Bootstrap API
         const bsModal = new bootstrap.Modal(modalElement);
         bsModal.show();
 
@@ -63,27 +60,23 @@ function populateModal(eventDetails) {
     const modalTitle = document.querySelector('#full-modal-event .modal-title');
     const modalBody = document.querySelector('#full-modal-event .modal-body');
 
+    modalTitle.textContent = eventDetails.title;
 
-    // Очистка содержимого модального окна перед заполнением новыми данными
-    modalTitle.textContent = eventDetails.title; // Заголовок события
-
-    // Создание элементов для тела модального окна
-    modalBody.innerHTML = ''; // Очищаем предыдущее содержимое
+    modalBody.innerHTML = '';
 
     const description = document.createElement('p');
     description.className = 'card-text';
-    description.innerHTML = `<h5>Описание:</h5> <p>${eventDetails.description}</p>`; // Описание события
+    description.innerHTML = `<h5>Описание:</h5> <p>${eventDetails.description}</p>`;
 
     const dateContainer = document.createElement('p');
     dateContainer.className = 'mb-1';
-    dateContainer.innerHTML = `<h5>Дата проведения</h5><p class="far fa-calendar-alt me-2"></p>${formatDate(eventDetails.date)}`; // Дата события
+    dateContainer.innerHTML = `<h5>Дата проведения</h5><p class="far fa-calendar-alt me-2"></p>${formatDate(eventDetails.date)}`;
 
-    // Если есть изображение события, добавляем его в модальное окно
     if (eventDetails.image_url) {
         const image = document.createElement('img');
         image.src = eventDetails.image_url;
         image.alt = eventDetails.title;
-        image.className = 'img-fluid mb-3'; // Класс для адаптивного изображения
+        image.className = 'img-fluid mb-3';
         modalBody.appendChild(image);
     }
     const location = document.createElement('p');
@@ -93,8 +86,6 @@ function populateModal(eventDetails) {
     const participantLimit = document.createElement('p');
     participantLimit.className = 'card-text';
     participantLimit.innerHTML = `<h5>Количество участников:</h5> <p>${eventDetails.participantLimit}</p>`;
-    // const . = document.createElement('p');
-    // const . = document.createElement('p');
     const category = document.createElement('p');
     category.className = 'card-text';
     if (eventDetails.category == "SPORT")
@@ -106,12 +97,9 @@ function populateModal(eventDetails) {
         category.innerHTML = `<h5>Категория:</h5> <p>Культура</p>`;
     }
 
-    // Добавление элементов в тело модального окна
     modalBody.append(description, dateContainer, participantLimit, category, location);
 }
 
-
-// Рендеринг всех событий
 function renderEvents(events) {
     eventsContainer.innerHTML = events
         .map(event => {
@@ -120,7 +108,6 @@ function renderEvents(events) {
                 id: BigInt(event.id).toString()
             });
 
-            // Обертываем карточку в ссылку с модальными атрибутами
             const linkWrapper = document.createElement('a');
             linkWrapper.href = '#';
             linkWrapper.dataset.bsToggle = 'modal';
@@ -136,17 +123,15 @@ function renderEvents(events) {
     const modalLinks = eventsContainer.querySelectorAll('a[data-bs-toggle="modal"]');
     modalLinks.forEach(link => {
         link.addEventListener('click', async (e) => {
-            e.preventDefault(); // Отменяем стандартное поведение ссылки
-            const eventId = link.dataset.eventId; // Получаем как раз ID события
+            e.preventDefault();
+            const eventId = link.dataset.eventId;
 
-            // Запрашиваем данные события по ID
             await loadEventDetails(eventId);
         });
     });
 
 }
 
-// Рендеринг одной карточки события (без изменений)
 function createEventCard(event) {
     const card = document.createElement('div');
 
@@ -181,7 +166,6 @@ function createEventCard(event) {
     return card;
 }
 
-// Остальные функции без изменений
 function handleError(error) {
     console.error('Ошибка:', error);
     eventsContainer.innerHTML = `
@@ -222,7 +206,6 @@ subscribeBtn.addEventListener('click', async () => {
     subscribeBtn.disabled = true;
     subscribeBtn.textContent = 'Отправка...';
 
-    // Удаляем предыдущие сообщения
     modalBody.querySelectorAll('.alert').forEach(a => a.remove());
 
     try {
@@ -251,10 +234,8 @@ subscribeBtn.addEventListener('click', async () => {
         link.click();
         document.body.removeChild(link);
 
-        // Освобождаем URL
         URL.revokeObjectURL(blobUrl);
 
-        // Обновляем интерфейс
         subscribeBtn.textContent = 'Вы подписаны';
         subscribeBtn.disabled = true;
 
@@ -275,7 +256,6 @@ subscribeBtn.addEventListener('click', async () => {
     }
 });
 
-// Инициализация
 document.addEventListener('DOMContentLoaded', () => {
     loadEvents();
 
