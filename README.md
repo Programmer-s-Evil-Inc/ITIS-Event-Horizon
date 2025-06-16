@@ -16,10 +16,6 @@ Creation of a centralized platform for students and organizers of ITIS KFU to pu
 - HTML/CSS
 - Bootstrap
 
-## ✅ Functionality
-.......
----------------------------------------------
-
 ## 🛠️ Local Development
 
 ### Prerequisites
